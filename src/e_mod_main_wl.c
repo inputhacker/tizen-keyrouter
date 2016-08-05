@@ -51,6 +51,7 @@ _e_keyrouter_keygrab_set(struct wl_client *client, struct wl_resource *surface, 
    if (EINA_FALSE == _e_keyrouter_util_do_privilege_check(client,
                        wl_client_get_fd(client), mode, key))
      {
+        KLINF("No permission for %d grab mode ! (key=%d)\n", mode, key);
         return TIZEN_KEYROUTER_ERROR_NO_PERMISSION;
      }
 #endif
@@ -1314,7 +1315,10 @@ _e_keyrouter_util_do_privilege_check(struct wl_client *client, int socket_fd, ui
         res = EINA_TRUE;
         e_keyrouter_add_client_destroy_listener(client);
      }
-
+   else
+     {
+        KLINF("Fail to check cynara,  error : %d (pid : %d)\n", ret, pid);
+     }
 finish:
    E_FREE(client_session);
    E_FREE(clientSmack);
