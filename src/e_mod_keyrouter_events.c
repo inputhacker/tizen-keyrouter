@@ -67,6 +67,13 @@ e_keyrouter_process_key_event(void *event, int type)
         KLDBG("data is exist send to compositor: %p\n", ev->data);
         goto finish;
      }
+
+   if (ev->modifiers != 0)
+     {
+        KLINF("Modifier key delivered to Focus window : Key %s(%d) \n", ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keycode);
+        goto finish;
+     }
+
    if (krt->playback_daemon_surface)
      {
        wc = wl_resource_get_client(krt->playback_daemon_surface);
