@@ -102,6 +102,8 @@ _e_keyrouter_substring(char *string, int position)
    char *pointer;
    int c;
 
+   if (!string) return NULL;
+
    for (c = 0; c < position - 1; c++)
      string++;
 
@@ -127,8 +129,10 @@ _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name,
 {
    int section_number, val;
    size_t needed;
-   char *local_section, *c_num, *dup;
+   char *local_section, *c_num, *dup = NULL;
    GArray *masterArray, *childArray;
+
+   if (!section) return -1;
 
    dup = strdup(section);
    c_num = _e_keyrouter_substring(dup, 12/*"Combination"*/);
