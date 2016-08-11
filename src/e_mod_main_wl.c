@@ -1109,7 +1109,7 @@ _e_keyrouter_query_tizen_key_table(void)
         KLINF("Server create a new cache file: %s\n", e_comp_wl_input_keymap_path_get(names));
         res = unlink(e_comp_wl_input_keymap_path_get(names));
 
-        e_comp_wl_input_keymap_set(NULL, NULL, NULL, NULL, NULL, xkb_context_ref(e_comp_wl->xkb.context), e_comp_wl->xkb.keymap);
+        e_comp_wl_input_keymap_set(NULL, NULL, NULL, NULL, NULL, xkb_context_ref(e_comp_wl->xkb.context), xkb_keymap_ref(e_comp_wl->xkb.keymap));
      }
    else
      KLINF("Currently cache file is exist. Do not change it.\n");
