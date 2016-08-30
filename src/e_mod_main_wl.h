@@ -85,6 +85,7 @@ struct _E_Keyrouter_Key_List_Node
    struct wl_resource *surface;
    struct wl_client *wc;
    Eina_Bool focused;
+   Eina_Bool deleted;
 };
 
 struct _E_Keyrouter_Tizen_HWKey

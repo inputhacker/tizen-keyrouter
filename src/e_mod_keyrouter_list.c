@@ -165,6 +165,7 @@ e_keyrouter_prepend_to_keylist(struct wl_resource *surface, struct wl_client *wc
    new_keyptr->surface = surface;
    new_keyptr->wc = wc;
    new_keyptr->focused = focused;
+   new_keyptr->deleted = EINA_FALSE;
 
    switch(mode)
      {
@@ -353,15 +354,13 @@ e_keyrouter_remove_client_from_list(struct wl_resource *surface, struct wl_clien
                {
                   if (surface == key_node_data->surface)
                     {
-                       krt->HardKeys[i].press_ptr = eina_list_remove_list(krt->HardKeys[i].press_ptr, l);
-                       E_FREE(key_node_data);
+                       key_node_data->deleted = EINA_TRUE;
                        KLINF("Remove a Pressed  key(%d) by surface(%p)\n", i, surface);
                     }
                }
              else if ((wc == key_node_data->wc))
                {
-                  krt->HardKeys[i].press_ptr = eina_list_remove_list(krt->HardKeys[i].press_ptr, l);
-                  E_FREE(key_node_data);
+                  key_node_data->deleted = EINA_TRUE;
                   KLINF("Remove a Pressed key(%d) by wc(%p)\n", i, wc);
                }
           }
@@ -524,6 +523,7 @@ _e_keyrouter_build_register_list(void)
                        node->surface = surface;
                        node->wc = NULL;
                        node->focused = EINA_FALSE;
+                       node->deleted = EINA_FALSE;
                        krt->HardKeys[*ddata].registered_ptr = node;
 
                        KLDBG("%d key's register surface is %p\n", *ddata, surface);

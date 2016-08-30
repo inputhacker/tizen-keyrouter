@@ -138,16 +138,16 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
    /* Deliver release  clean up pressed key list */
    EINA_LIST_FREE(krt->HardKeys[ev->keycode].press_ptr, key_node_data)
      {
-        if (key_node_data)
+        if (!key_node_data->deleted)
           {
              res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
                                                key_node_data->focused, TIZEN_KEYROUTER_MODE_PRESSED);
              KLINF("Release Pair : Key %s(%s:%d)(Focus: %d) ===> E_Client (%p) WL_Client (%p) (pid: %d)\n",
                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, key_node_data->focused,
                       key_node_data->surface, key_node_data->wc, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
-             E_FREE(key_node_data);
-             if (res == EINA_FALSE) ret = EINA_FALSE;
           }
+        E_FREE(key_node_data);
+        if (res == EINA_FALSE) ret = EINA_FALSE;
      }
    krt->HardKeys[ev->keycode].press_ptr = NULL;
    krt->isRegisterDelivery = EINA_FALSE;
