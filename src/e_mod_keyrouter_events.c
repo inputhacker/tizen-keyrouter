@@ -132,6 +132,8 @@ _e_keyrouter_send_key_events(int type, Ecore_Event_Key *ev)
 static Eina_Bool
 _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
 {
+   int pid = 0;
+   char *pname = NULL;
    E_Keyrouter_Key_List_NodePtr key_node_data;
    Eina_Bool res = EINA_TRUE, ret = EINA_TRUE;
 
@@ -142,9 +144,14 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
           {
              res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
                                                key_node_data->focused, TIZEN_KEYROUTER_MODE_PRESSED);
-             KLINF("Release Pair : Key %s(%s:%d)(Focus: %d) ===> E_Client (%p) WL_Client (%p) (pid: %d)\n",
+
+             pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+             pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+             KLINF("Release Pair : %s(%s:%d)(Focus: %d) => E_Client (%p) WL_Client (%p) (pid: %d) (pname: %s)\n",
                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, key_node_data->focused,
-                      key_node_data->surface, key_node_data->wc, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                      key_node_data->surface, key_node_data->wc, pid, pname);
+
+             E_FREE(pname);
           }
         E_FREE(key_node_data);
         if (res == EINA_FALSE) ret = EINA_FALSE;
@@ -163,6 +170,8 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
    E_Client *ec_focus = NULL;
    struct wl_resource *delivered_surface = NULL;
    Eina_Bool res = EINA_TRUE;
+   int pid = 0;
+   char *pname = NULL;
 
    E_Keyrouter_Key_List_NodePtr key_node_data;
    Eina_List *l = NULL;
@@ -177,8 +186,12 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
             if (key_node_data)
                 {
                  res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev, key_node_data->focused, TIZEN_KEYROUTER_MODE_REGISTERED);
-                 KLINF("PICTURE OFF Mode : Key %s(%d) ===> Surface (%p) WL_Client (%p)\n",
-                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keycode, key_node_data->surface, key_node_data->wc);
+
+                 pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+                 pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+                 KLINF("PICTURE OFF : %s(%d) => Surface (%p) WL_Client (%p) (pid: %d) (pname: %s)\n",
+                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keycode, key_node_data->surface, key_node_data->wc, pid, pname);
+                 E_FREE(pname);
                 }
           }
        return res;
@@ -203,9 +216,13 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
           {
              res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
                                                key_node_data->focused, TIZEN_KEYROUTER_MODE_EXCLUSIVE);
-             KLINF("EXCLUSIVE Mode : Key %s(%s:%d) ===> Surface (%p) WL_Client (%p) (pid: %d)\n",
+
+             pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+             pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+             KLINF("EXCLUSIVE : %s(%s:%d) => Surface (%p) WL_Client (%p) (pid: %d) (pname: %s)\n",
                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                      key_node_data->surface, key_node_data->wc, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                      key_node_data->surface, key_node_data->wc, pid, pname);
+             E_FREE(pname);
 
              return res;
           }
@@ -217,9 +234,13 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
           {
              res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
                                                key_node_data->focused, TIZEN_KEYROUTER_MODE_OVERRIDABLE_EXCLUSIVE);
-             KLINF("OVERRIDABLE_EXCLUSIVE Mode : Key %s(%s:%d) ===> Surface (%p) WL_Client (%p) (pid: %d)\n",
+
+             pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+             pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+             KLINF("OVERRIDABLE_EXCLUSIVE : %s(%s:%d) => Surface (%p) WL_Client (%p) (pid: %d) (pname: %s)\n",
                      ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                     key_node_data->surface, key_node_data->wc, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                     key_node_data->surface, key_node_data->wc, pid, pname);
+             E_FREE(pname);
 
              return res;
           }
@@ -234,24 +255,32 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
                {
                   if ((EINA_FALSE == krt->isWindowStackChanged) && (surface_focus == key_node_data->surface))
                     {
+                       pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+                       pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
                        res = _e_keyrouter_send_key_event(type, key_node_data->surface, NULL, ev, key_node_data->focused,
                                                          TIZEN_KEYROUTER_MODE_TOPMOST);
-                       KLINF("TOPMOST (TOP_POSITION) Mode : Key %s (%s:%d) ===> Surface (%p) (pid: %d)\n",
+                       KLINF("TOPMOST (TOP_POSITION) : %s (%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
                                 ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                                key_node_data->surface, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                                key_node_data->surface, pid, pname);
 
+                       E_FREE(pname);
                        return res;
                     }
                   krt->isWindowStackChanged = EINA_FALSE;
 
                   if (_e_keyrouter_check_top_visible_window(ec_focus, keycode))
                     {
+                       pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+                       pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
                        res = _e_keyrouter_send_key_event(type, key_node_data->surface, NULL, ev, key_node_data->focused,
                                                          TIZEN_KEYROUTER_MODE_TOPMOST);
-                       KLINF("TOPMOST (TOP_POSITION) Mode : Key %s (%s:%d) ===> Surface (%p) (pid: %d)\n",
+                       KLINF("TOPMOST (TOP_POSITION) : %s (%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
                              ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                             key_node_data->surface, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                             key_node_data->surface, pid, pname);
 
+                       E_FREE(pname);
                        return res;
                     }
                   break;
@@ -286,9 +315,11 @@ need_shared:
                   else
                     {
                        _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev, key_node_data->focused, TIZEN_KEYROUTER_MODE_SHARED);
-                       KLINF("SHARED Mode : Key %s(%s:%d) ===> Surface (%p) WL_Client (%p) (pid: %d)\n",
-                             ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                             key_node_data->surface, key_node_data->wc, e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface));
+                       pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+                       pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+                       KLINF("SHARED : %s(%s:%d) => Surface (%p) WL_Client (%p) (pid: %d) (pname: %s)\n",
+                             ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, key_node_data->surface, key_node_data->wc, pid, pname);
+                       E_FREE(pname);
                     }
                }
           }
@@ -309,6 +340,8 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
    Eina_List *ll = NULL;
    int deliver_invisible = 0;
    Eina_Bool res = EINA_TRUE;
+   int pid = 0;
+   char *pname = NULL;
 
    ec_top = e_client_top_get();
    ec_focus = e_client_focused_get();
@@ -333,11 +366,15 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
         // Check for FORCE DELIVER to INVISIBLE WINDOW
         if (deliver_invisible && IsInvisibleGetWindow(surface))
           {
+             pid = e_keyrouter_util_get_pid(NULL, surface);
+             pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
              res = _e_keyrouter_send_key_event(type, surface, NULL, ev, EINA_TRUE, TIZEN_KEYROUTER_MODE_REGISTERED);
-             KLINF("FORCE DELIVER : Key %s(%s:%d) ===> Surface (%p) (pid: %d)\n",
+             KLINF("FORCE DELIVER : %s(%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
                    ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                   surface, e_keyrouter_util_get_pid(NULL, surface));
+                   surface, pid, pname);
              *delivered_surface = surface;
+             E_FREE(pname);
              return res;
           }
 
@@ -375,12 +412,15 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
 
                        if(*key_data == ev->keycode)
                          {
+                            pid = e_keyrouter_util_get_pid(NULL, surface);
+                            pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
                             res = _e_keyrouter_send_key_event(type, surface, NULL, ev, EINA_TRUE, TIZEN_KEYROUTER_MODE_REGISTERED);
-                            KLINF("REGISTER Mode : Key %s(%s:%d) ===> Surface (%p) (pid: %d)\n",
-                                  ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                                  surface, e_keyrouter_util_get_pid(NULL, surface));
+                            KLINF("REGISTER : %s(%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
+                                  ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, surface, pid, pname);
                             *delivered_surface = surface;
                             krt->isRegisterDelivery = EINA_TRUE;
+                            E_FREE(pname);
                             return res;
                          }
                     }
@@ -398,11 +438,14 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
              // Deliver to below Non Registered window
              else if (!e_keyrouter_is_registered_window(surface))
                {
+                  pid = e_keyrouter_util_get_pid(NULL, surface);
+                  pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
                   res = _e_keyrouter_send_key_event(type, surface, NULL, ev, EINA_TRUE, TIZEN_KEYROUTER_MODE_SHARED);
-                  KLINF("NOT REGISTER : Key %s(%s:%d) ===> Surface (%p) (pid: %d)\n",
-                        ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                        surface, e_keyrouter_util_get_pid(NULL, surface));
+                  KLINF("NOT REGISTER : %s(%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
+                        ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, surface, pid, pname);
                   *delivered_surface = surface;
+                  E_FREE(pname);
                   return res;
                }
              else continue;
@@ -412,11 +455,14 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
              // Deliver to Focus if Non Registered window
              if (!e_keyrouter_is_registered_window(surface))
                {
+                  pid = e_keyrouter_util_get_pid(NULL, surface);
+                  pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
                   res = _e_keyrouter_send_key_event(type, surface, NULL,ev, EINA_TRUE, TIZEN_KEYROUTER_MODE_SHARED);
-                  KLINF("FOCUS : Key %s(%s:%d) ===> Surface (%p) (pid: %d)\n",
-                        ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                        surface, e_keyrouter_util_get_pid(NULL, surface));
+                  KLINF("FOCUS : %s(%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
+                        ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, surface, pid, pname);
                   *delivered_surface = surface;
+                  E_FREE(pname);
                   return res;
                }
              else continue;
@@ -641,4 +687,26 @@ e_keyrouter_util_keyname_get_from_keycode(int keycode)
    xkb_keysym_get_name(sym, name, sizeof(name));
 
    return strdup(name);
+}
+
+char *
+e_keyrouter_util_process_name_get_from_cmd(char *cmd)
+{
+   int len, i;
+   char pbuf = NULL;
+   char *pname;
+   if (cmd)
+     {
+        len = strlen(cmd);
+        for (i = 0; i < len; i++)
+          {
+             pbuf = cmd[len - i - 1];
+             if (pbuf == '/')
+               {
+                  pname = &cmd[len - i];
+                  return strdup(pname);
+               }
+          }
+     }
+   return NULL;
 }

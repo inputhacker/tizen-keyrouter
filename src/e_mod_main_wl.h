@@ -33,10 +33,10 @@
 #define CHECK_NULL(val) if (!val) return;
 #define CHECK_NULL_VAL(val) if (!val) return val;
 
-#define KLERR(msg, ARG...) ERR("[tizen_keyrouter][%s:%d] "msg, __FUNCTION__, __LINE__, ##ARG)
-#define KLWRN(msg, ARG...) WRN("[tizen_keyrouter][%s:%d] "msg, __FUNCTION__, __LINE__, ##ARG)
-#define KLINF(msg, ARG...) INF("[tizen_keyrouter][%s:%d] "msg, __FUNCTION__, __LINE__, ##ARG)
-#define KLDBG(msg, ARG...) DBG("[tizen_keyrouter][%s:%d] "msg, __FUNCTION__, __LINE__, ##ARG)
+#define KLERR(msg, ARG...) ERR(msg, ##ARG)
+#define KLWRN(msg, ARG...) WRN(msg, ##ARG)
+#define KLINF(msg, ARG...) INF(msg, ##ARG)
+#define KLDBG(msg, ARG...) DBG(msg, ##ARG)
 
 typedef struct _E_Keyrouter E_Keyrouter;
 typedef struct _E_Keyrouter* E_KeyrouterPtr;
@@ -188,10 +188,12 @@ int e_keyrouter_util_get_pid(struct wl_client *client, struct wl_resource *surfa
 char *e_keyrouter_util_cmd_get_from_pid(int pid);
 int e_keyrouter_util_keycode_get_from_string(char *name);
 char *e_keyrouter_util_keyname_get_from_keycode(int keycode);
+char *e_keyrouter_util_process_name_get_from_cmd(char *cmd);
 
 void e_keyrouter_conf_init(E_Keyrouter_Config_Data *kconfig);
 void e_keyrouter_conf_deinit(E_Keyrouter_Config_Data *kconfig);
 void e_keyrouter_key_combination_init();
 void e_keyrouter_process_key_combination(Time cur_time, int keycode, int state);
 int e_keyrouter_cb_picture_off(const int option, void *data);
+
 #endif
