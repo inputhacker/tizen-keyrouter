@@ -124,6 +124,9 @@ _e_keyrouter_keygrab_unset(struct wl_client *client, struct wl_resource *surface
         /* SHARED grab */
         e_keyrouter_find_and_remove_client_from_list(NULL, client, key, TIZEN_KEYROUTER_MODE_SHARED);
 
+        /* Press List */
+        e_keyrouter_find_and_remove_client_from_list(NULL, client, key, TIZEN_KEYROUTER_MODE_PRESSED);
+
         return TIZEN_KEYROUTER_ERROR_NONE;
      }
 
@@ -138,6 +141,9 @@ _e_keyrouter_keygrab_unset(struct wl_client *client, struct wl_resource *surface
 
    /* REGISTERED grab */
    e_keyrouter_unset_keyregister(surface, client, key);
+
+   /* Press List */
+   e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_PRESSED);
 
    return TIZEN_KEYROUTER_ERROR_NONE;
 }

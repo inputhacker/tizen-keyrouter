@@ -239,15 +239,29 @@ e_keyrouter_find_and_remove_client_from_list(struct wl_resource *surface, struct
           {
              if (surface == key_node_data->surface)
                {
-                  *list = eina_list_remove_list(*list, l);
-                  E_FREE(key_node_data);
+                  if (mode == TIZEN_KEYROUTER_MODE_PRESSED)
+                    {
+                       key_node_data->deleted = EINA_TRUE;
+                    }
+                  else
+                    {
+                       *list = eina_list_remove_list(*list, l);
+                       E_FREE(key_node_data);
+                    }
                   KLDBG("Remove a %s Mode Grabbed key(%d) by surface(%p)\n", _mode_str_get(mode), key, surface);
                }
           }
         else if ((wc == key_node_data->wc))
           {
-             *list = eina_list_remove_list(*list, l);
-             E_FREE(key_node_data);
+             if (mode == TIZEN_KEYROUTER_MODE_PRESSED)
+               {
+                  key_node_data->deleted = EINA_TRUE;
+               }
+             else
+               {
+                  *list = eina_list_remove_list(*list, l);
+                  E_FREE(key_node_data);
+               }
              KLDBG("Remove a %s Mode Grabbed key(%d) by wc(%p)\n", _mode_str_get(mode), key, wc);
           }
      }
@@ -754,6 +768,7 @@ _mode_str_get(uint32_t mode)
       case TIZEN_KEYROUTER_MODE_TOPMOST:               str = "Topmost";               break;
       case TIZEN_KEYROUTER_MODE_SHARED:                str = "Shared";                break;
       case TIZEN_KEYROUTER_MODE_REGISTERED:            str = "Registered";            break;
+      case TIZEN_KEYROUTER_MODE_PRESSED:               str = "Pressed";               break;
       default: str = "UnknownMode"; break;
      }
 
@@ -771,6 +786,7 @@ _e_keyrouter_get_list(int mode, int key)
         case TIZEN_KEYROUTER_MODE_OVERRIDABLE_EXCLUSIVE: list = &krt->HardKeys[key].or_excl_ptr; break;
         case TIZEN_KEYROUTER_MODE_TOPMOST:               list = &krt->HardKeys[key].top_ptr;     break;
         case TIZEN_KEYROUTER_MODE_SHARED:                list = &krt->HardKeys[key].shared_ptr;  break;
+        case TIZEN_KEYROUTER_MODE_PRESSED:                list = &krt->HardKeys[key].press_ptr;  break;
         default: break;
      }
 
