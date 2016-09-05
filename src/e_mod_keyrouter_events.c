@@ -186,6 +186,14 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
    if (!_e_keyrouter_is_key_grabbed(ev->keycode))
      {
        res = _e_keyrouter_send_key_events_focus(type, surface_focus, ev, &delivered_surface);
+       if (delivered_surface)
+         {
+            res = e_keyrouter_add_surface_destroy_listener(delivered_surface);
+            if (res != TIZEN_KEYROUTER_ERROR_NONE)
+              {
+                 KLWRN("Failed to add surface to destroy listener (res: %d)\n", res);
+              }
+         }
        return res;
      }
 
