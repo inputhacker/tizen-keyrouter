@@ -24,6 +24,7 @@
 #define DBUS_IFACE "keyrouter.dbus.Signal"
 #define DBUS_MSG_NAME "KEY_COMBINATION"
 #define COMBINATION_TIME_OUT 4000
+#define MAX_SUPPORTED_COMBINATION 255
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
 typedef unsigned long Time;
@@ -145,9 +146,9 @@ _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name,
    section_number = atoi(c_num);
    free(c_num);
    free(dup);
-   if (section_number == 0)
+   if (section_number <= 0 || section_number > MAX_SUPPORTED_COMBINATION)
      {
-        KLWRN("\n^[[36m Unable to read config. section_number is 0. ^[[0m\n");
+        KLWRN("\n^[[36m Unable to read config. section_number is invalid. ^[[0m\n");
         return -1;
      }
    section_number--;
