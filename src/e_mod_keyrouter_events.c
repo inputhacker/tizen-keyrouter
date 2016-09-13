@@ -346,6 +346,19 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
    ec_top = e_client_top_get();
    ec_focus = e_client_focused_get();
 
+   if (!krt->HardKeys[ev->keycode].registered_ptr && !krt->invisible_set_window_list)
+     {
+        pid = e_keyrouter_util_get_pid(NULL, surface_focus);
+        pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
+
+        res = _e_keyrouter_send_key_event(type, surface_focus, NULL,ev, EINA_TRUE, TIZEN_KEYROUTER_MODE_SHARED);
+        KLINF("FOCUS DIRECT : %s(%s:%d) => Surface (%p) (pid: %d) (pname: %s)\n",
+               ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, surface_focus, pid, pname);
+        *delivered_surface = surface_focus;
+        E_FREE(pname);
+        return res;
+     }
+
    // loop over to next window from top of window stack
    for (; ec_top != NULL; ec_top = e_client_below_get(ec_top))
      {
