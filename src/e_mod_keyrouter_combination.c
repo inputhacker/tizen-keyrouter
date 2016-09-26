@@ -59,20 +59,20 @@ _e_keyrouter_dbus_connection_init()
 {
    DBusError dBus_error;
 
-   KLINF("_e_keyrouter_dbus_connection_init() \n");
+   KLINF("_e_keyrouter_dbus_connection_init()");
 
    dbus_error_init(&dBus_error);
    g_key_combination.keyrouter_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dBus_error);
 
    if (dbus_error_is_set(&dBus_error))
      {
-        KLWRN("[DBUS-ERROR] %s \n",dBus_error.message);
+        KLWRN("[DBUS-ERROR] %s",dBus_error.message);
         dbus_error_free(&dBus_error);
      }
 
    if (!g_key_combination.keyrouter_dbus_conn)
      {
-        KLWRN("[DBUS-CONNECTION-FAIL] DBUS connection is failed \n");
+        KLWRN("[DBUS-CONNECTION-FAIL] DBUS connection is failed");
      }
 }
 
@@ -89,7 +89,7 @@ e_keyrouter_key_combination_init()
    g_key_combination._master_combinations = g_array_new(FALSE, FALSE, sizeof(GArray*));
    if (ini_parse((const char *) g_key_combination.combinationFilePath, _e_keyrouter_parse_ini_config, g_key_combination._master_combinations) < 0)
      {
-        KLWRN("Can't load %s file\n", g_key_combination.combinationFilePath);
+        KLWRN("Can't load %s file", g_key_combination.combinationFilePath);
      }
 
    g_key_combination.combination_timeout = COMBINATION_TIME_OUT;
@@ -111,7 +111,7 @@ _e_keyrouter_substring(char *string, int position)
    pointer = malloc(strlen(string) + 1);
    if (pointer == NULL)
      {
-        KLWRN("Unable to allocate memory.\n");
+        KLWRN("Unable to allocate memory.");
         return NULL;
      }
 
@@ -139,7 +139,7 @@ _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name,
    c_num = _e_keyrouter_substring(dup, 12/*"Combination"*/);
    if (c_num == NULL)
      {
-        KLWRN("\n Unable to read config. substring is null. \n");
+        KLWRN(" Unable to read config. substring is null.");
         return -1;
      }
 
@@ -148,7 +148,7 @@ _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name,
    free(dup);
    if (section_number <= 0 || section_number > MAX_SUPPORTED_COMBINATION)
      {
-        KLWRN("\n^[[36m Unable to read config. section_number is invalid. ^[[0m\n");
+        KLWRN("^[[36m Unable to read config. section_number is invalid. ^[[0m");
         return -1;
      }
    section_number--;
@@ -164,7 +164,7 @@ _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name,
    local_section = malloc(needed + 1);
    if (local_section == NULL)
      {
-        KLWRN("\n^[[36m Failed to allocate memory for local_section ^[[0m\n");
+        KLWRN("^[[36m Failed to allocate memory for local_section ^[[0m");
         return -1;
      }
    snprintf(local_section, needed + 1, "%s%d", "Combination", section_number + 1);
@@ -257,12 +257,12 @@ e_keyrouter_process_key_combination(Time cur_time, int keycode, int state)
 
    if (!keyCombinationInitialize)
      {
-        KLWRN("KeyCombinatioin support is not initiazlied yet \n");
+        KLWRN("KeyCombinatioin support is not initiazlied yet");
         return ;
      }
    if (g_key_combination._master_combinations == NULL)
      {
-        KLDBG(" Not searching key combination as Master combination is NULL \n");
+        KLDBG(" Not searching key combination as Master combination is NULL");
      }
    if (state == ECORE_EVENT_KEY_UP)
      {
@@ -284,7 +284,7 @@ _e_keyrouter_send_dbus_message(DBusConnection *bus, int Input)
    dbus_message_append_args(message, DBUS_TYPE_INT32, &Input, DBUS_TYPE_INVALID);
 
    if (!dbus_connection_send(bus, message, NULL))
-     KLWRN( "DBUS sending MSG  FAILED!!\n");
+     KLWRN( "DBUS sending MSG  FAILED!!");
 
    dbus_message_unref(message);
    return 1;
@@ -390,7 +390,7 @@ _e_keyrouter_search_key_combination(int keycode, Time timestamp)
              matched = g_array_index(g_key_combination._current_matched_combinations,GArray*,0);
 
              for (i = 0; i < matched->len; i++)
-               KLDBG("[32m Matched Combination:|%d| [0m\n", g_array_index(matched,int,i));
+               KLDBG("[32m Matched Combination:|%d| [0m", g_array_index(matched,int,i));
              foundAt = 0;
 
              for (i = 0; i < g_key_combination._master_combinations->len; i++)
@@ -410,7 +410,7 @@ _e_keyrouter_search_key_combination(int keycode, Time timestamp)
                     }
                   if (foundAt)
                     {
-                       KLDBG("[32m COMBINATION FOUND AT : %d  [0m\n", foundAt);
+                       KLDBG("[32m COMBINATION FOUND AT : %d  [0m", foundAt);
                        break;
                     }
                }

@@ -31,7 +31,7 @@ e_keyrouter_conf_init(E_Keyrouter_Config_Data *kconfig)
 
    if (!kconfig->conf)
      {
-        KLDBG("Failed to find module.keyrouter config file.\n");
+        KLDBG("Failed to find module.keyrouter config file.");
      }
 }
 
