@@ -346,7 +346,8 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
    ec_top = e_client_top_get();
    ec_focus = e_client_focused_get();
 
-   if (!krt->HardKeys[ev->keycode].registered_ptr && !krt->invisible_set_window_list)
+   if (!krt->HardKeys[ev->keycode].registered_ptr && !e_keyrouter_is_registered_window(surface_focus) &&
+         !IsNoneKeyRegisterWindow(surface_focus) && !krt->invisible_set_window_list)
      {
         pid = e_keyrouter_util_get_pid(NULL, surface_focus);
         pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
