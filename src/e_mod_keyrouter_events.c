@@ -271,14 +271,15 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
 
                   if (_e_keyrouter_check_top_visible_window(ec_focus, keycode))
                     {
-                       pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
+                       E_Keyrouter_Key_List_NodePtr top_key_node_data = eina_list_data_get(krt->HardKeys[keycode].top_ptr);
+                       pid = e_keyrouter_util_get_pid(top_key_node_data->wc, top_key_node_data->surface);
                        pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
 
-                       res = _e_keyrouter_send_key_event(type, key_node_data->surface, NULL, ev, key_node_data->focused,
+                       res = _e_keyrouter_send_key_event(type, top_key_node_data->surface, NULL, ev, top_key_node_data->focused,
                                                          TIZEN_KEYROUTER_MODE_TOPMOST);
                        KLINF("TOPMOST (TOP_POSITION) : %s (%s:%d) => Surface (%p) (pid: %d) (pname: %s)",
                              ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode,
-                             key_node_data->surface, pid, pname);
+                             top_key_node_data->surface, pid, pname);
 
                        E_FREE(pname);
                        return res;
