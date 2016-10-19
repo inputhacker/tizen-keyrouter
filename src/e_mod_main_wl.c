@@ -168,6 +168,8 @@ static void
 _e_keyrouter_cb_keygrab_unset(struct wl_client *client, struct wl_resource *resource, struct wl_resource *surface, uint32_t key)
 {
    int res = 0;
+   Eina_List *l = NULL;
+   E_Keyrouter_Key_List_NodePtr data = NULL;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_unset);
    KLINF("Key ungrab request (client: %p, surface: %p, pid: %d, key:%d)", client, surface, e_keyrouter_util_get_pid(client, surface), key);
@@ -176,6 +178,20 @@ _e_keyrouter_cb_keygrab_unset(struct wl_client *client, struct wl_resource *reso
 
    TRACE_INPUT_END();
    tizen_keyrouter_send_keygrab_notify(resource, surface, key, TIZEN_KEYROUTER_MODE_NONE, res);
+   EINA_LIST_FOREACH(krt->HardKeys[key].press_ptr, l, data)
+     {
+        if (surface)
+          {
+             if (surface == data->surface)
+               {
+                  tizen_keyrouter_send_key_cancel(resource, key-8);
+               }
+          }
+        else if (client == data->wc)
+          {
+             tizen_keyrouter_send_key_cancel(resource, key-8);
+          }
+     }
 }
 
 /* tizen_keyrouter get_keygrab_status request handler */
