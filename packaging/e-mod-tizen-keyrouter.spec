@@ -56,10 +56,6 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{TZ_SYS_RO_SHARE}/license
 cp -a %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}
 
-# for install combination key's configuration
-mkdir -p %{buildroot}%{TZ_SYS_RO_APP}/keyrouter
-cp -af config/key_combinations.ini %{buildroot}%{TZ_SYS_RO_APP}/keyrouter/
-
 # install
 make install DESTDIR=%{buildroot}
 
@@ -70,4 +66,3 @@ find  %{buildroot}%{_libdir}/enlightenment/modules/%{name} -name *.la | xargs rm
 %defattr(-,root,root,-)
 %{_libdir}/enlightenment/modules/e-mod-tizen-keyrouter
 %{TZ_SYS_RO_SHARE}/license/%{name}
-%attr(754, app, root) %{TZ_SYS_RO_APP}/keyrouter

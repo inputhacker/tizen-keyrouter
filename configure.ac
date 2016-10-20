@@ -40,7 +40,7 @@ dnl ========================================================================
 #AC_HEADER_STDC
 AC_CHECK_HEADERS([math.h fcntl.h stdlib.h string.h unistd.h])
 
-COMBINATION_FILE_PATH="$TZ_SYS_RO_APP/keyrouter/key_combinations.ini"
+COMBINATION_FILE_PATH="$TZ_SYS_RO_APP/keyrouter/key_combination_list.ini"
 AC_DEFINE_UNQUOTED(COMBINATION_FILE_PATH, "$COMBINATION_FILE_PATH", [Path to Key Combination File])
 dnl ========================================================================
 # checks for typedefs, structures, and compiler characteristics
