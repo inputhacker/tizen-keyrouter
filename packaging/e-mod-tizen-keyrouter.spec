@@ -1,7 +1,7 @@
 %bcond_with wayland
 
 Name: e-mod-tizen-keyrouter
-Version: 0.1.24
+Version: 0.1.25
 Release: 1
 Summary: The Enlightenment Keyrouter Module for Tizen
 URL: http://www.enlightenment.org
