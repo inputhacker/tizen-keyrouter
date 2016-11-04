@@ -25,6 +25,8 @@
 #define DBUS_MSG_NAME "KEY_COMBINATION"
 #define COMBINATION_TIME_OUT 4000
 #define MAX_SUPPORTED_COMBINATION 255
+#define DBUS_CONN_RETRY_TIMEOUT 0.2
+#define DBUS_CONN_MAX_RETRY_COUNT 20
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
 typedef unsigned long Time;
@@ -46,15 +48,17 @@ typedef struct _KeyCombination
 } KeyCombination;
 
 static int keyCombinationInitialize = 0;
+static int dbus_connection_init_retry_count = 0;
+static Ecore_Timer *dbus_conn_timer = NULL;
 KeyCombination g_key_combination;
 
-static void _e_keyrouter_dbus_connection_init();
+static Eina_Bool e_keyrouter_dbus_connection_init();
 static int _e_keyrouter_search_key_combination(int keycode, Time timestamp);
 static int _e_keyrouter_send_dbus_message(DBusConnection *bus, int Input);
 static char * _e_keyrouter_substring(char *string, int position);
 static int _e_keyrouter_parse_ini_config(void* user, const char* section, const char* name, const char* value);
 
-static void
+static Eina_Bool
 _e_keyrouter_dbus_connection_init()
 {
    DBusError dBus_error;
@@ -63,16 +67,42 @@ _e_keyrouter_dbus_connection_init()
 
    dbus_error_init(&dBus_error);
    g_key_combination.keyrouter_dbus_conn = dbus_bus_get(DBUS_BUS_SYSTEM, &dBus_error);
-
-   if (dbus_error_is_set(&dBus_error))
-     {
-        KLWRN("[DBUS-ERROR] %s",dBus_error.message);
-        dbus_error_free(&dBus_error);
-     }
-
    if (!g_key_combination.keyrouter_dbus_conn)
      {
         KLWRN("[DBUS-CONNECTION-FAIL] DBUS connection is failed");
+        if (dbus_error_is_set(&dBus_error))
+          {
+             KLWRN("[DBUS-ERROR] %s",dBus_error.message);
+             dbus_error_free(&dBus_error);
+          }
+        return EINA_FALSE;
+     }
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+dbus_connection_init_retry_timercb()
+{
+   if (_e_keyrouter_dbus_connection_init())
+     {
+        keyCombinationInitialize = 1;
+        dbus_conn_timer = NULL;
+        return ECORE_CALLBACK_CANCEL;
+     }
+   else
+     {
+        if (dbus_connection_init_retry_count < DBUS_CONN_MAX_RETRY_COUNT)
+          {
+             dbus_connection_init_retry_count++;
+             KLWRN("Failed to init dbus conn trying again, try count %d",dbus_connection_init_retry_count);
+             return ECORE_CALLBACK_RENEW;
+          }
+        else
+          {
+             KLERR("Failed to init dbus connection for key combination after multiple tries");
+             dbus_conn_timer = NULL;
+             return ECORE_CALLBACK_CANCEL;
+          }
      }
 }
 
@@ -81,6 +111,7 @@ e_keyrouter_key_combination_init()
 {
    memset(&g_key_combination, 0, sizeof(g_key_combination));
    g_key_combination.keyrouter_dbus_conn = NULL;
+   dbus_conn_timer = NULL;
    snprintf(g_key_combination.dbusconf.path, strlen(DBUS_PATH)+1, DBUS_PATH);
    snprintf(g_key_combination.dbusconf.interface, strlen(DBUS_IFACE)+1, DBUS_IFACE);
    snprintf(g_key_combination.dbusconf.msg, strlen(DBUS_MSG_NAME)+1, DBUS_MSG_NAME);
@@ -93,8 +124,22 @@ e_keyrouter_key_combination_init()
      }
 
    g_key_combination.combination_timeout = COMBINATION_TIME_OUT;
-   _e_keyrouter_dbus_connection_init();
-   keyCombinationInitialize = 1;
+   if (_e_keyrouter_dbus_connection_init())
+     {
+        keyCombinationInitialize = 1;
+     }
+   else
+     {
+        dbus_conn_timer = ecore_timer_add(DBUS_CONN_RETRY_TIMEOUT, dbus_connection_init_retry_timercb, NULL);
+        if (dbus_conn_timer != NULL)
+          {
+             KLWRN("Ecore Timer added for dbus init retry ");
+          }
+        else
+          {
+             KLERR("dbus connection init failed and unable to add ecore timer callback for init retry");
+          }
+     }
 }
 
 static char *
