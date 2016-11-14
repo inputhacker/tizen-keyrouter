@@ -20,11 +20,9 @@ BuildRequires:  pkgconfig(capi-system-device)
 %endif
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libtzplatform-config)
-%if "%{?profile}" == "common"
-%else
 BuildRequires:  xkb-tizen-data
-%endif
 
+# TODO: This generates big warnings during build. Please revise.
 %global TZ_SYS_RO_SHARE  %{?TZ_SYS_RO_SHARE:%TZ_SYS_RO_SHARE}%{!?TZ_SYS_RO_SHARE:/usr/share}
 
 %description
