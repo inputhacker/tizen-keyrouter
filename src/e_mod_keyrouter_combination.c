@@ -52,7 +52,7 @@ static int dbus_connection_init_retry_count = 0;
 static Ecore_Timer *dbus_conn_timer = NULL;
 KeyCombination g_key_combination;
 
-static Eina_Bool e_keyrouter_dbus_connection_init();
+static Eina_Bool _e_keyrouter_dbus_connection_init();
 static int _e_keyrouter_search_key_combination(int keycode, Time timestamp);
 static int _e_keyrouter_send_dbus_message(DBusConnection *bus, int Input);
 static char * _e_keyrouter_substring(char *string, int position);
