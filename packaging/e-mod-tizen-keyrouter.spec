@@ -22,12 +22,6 @@ BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  xkb-tizen-data
 
-%if 0%{?TZ_SYS_RO_SHARE:1}
-# TZ_SYS_RO_SHARE is already defined
-%else
-%global TZ_SYS_RO_SHARE /usr/share
-%endif
-
 %description
 This package is a the Enlightenment Keyrouter Module for Tizen.
 
