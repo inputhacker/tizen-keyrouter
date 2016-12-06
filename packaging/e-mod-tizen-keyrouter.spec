@@ -14,7 +14,6 @@ BuildRequires:  pkgconfig(tizen-extension-server)
 BuildRequires:  pkgconfig(cynara-client)
 BuildRequires:  pkgconfig(cynara-creds-socket)
 BuildRequires:  pkgconfig(capi-system-device)
-BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libtzplatform-config)
 
 %description

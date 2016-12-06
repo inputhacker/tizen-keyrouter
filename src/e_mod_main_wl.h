@@ -211,8 +211,6 @@ const char *e_keyrouter_mode_to_string(uint32_t mode);
 
 void e_keyrouter_conf_init(E_Keyrouter_Config_Data *kconfig);
 void e_keyrouter_conf_deinit(E_Keyrouter_Config_Data *kconfig);
-void e_keyrouter_key_combination_init();
-void e_keyrouter_process_key_combination(Time cur_time, int keycode, int state);
 int e_keyrouter_cb_picture_off(const int option, void *data);
 
 #endif

@@ -99,8 +99,6 @@ e_keyrouter_process_key_event(void *event, int type)
      }
 
    //KLDBG("The key(%d) is going to be sent to the proper wl client(s) !", ev->keycode);
-   /* Call process key combination to lookup for any particular combinaton */
-   e_keyrouter_process_key_combination(ev->timestamp, ev->keycode, type);
    KLDBG("[%s] keyname: %s, key: %s, keycode: %d", (type == ECORE_EVENT_KEY_DOWN) ? "KEY_PRESS" : "KEY_RELEASE", ev->keyname, ev->key, ev->keycode);
    if (_e_keyrouter_send_key_events(type, ev))
      res = EINA_FALSE;

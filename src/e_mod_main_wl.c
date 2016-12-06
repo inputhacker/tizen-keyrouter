@@ -1157,8 +1157,6 @@ _e_keyrouter_init(E_Module *m)
    krt->conf = kconfig;
    krt->pictureoff_disabled = !!kconfig->conf->pictureoff_disabled;
 
-   e_keyrouter_key_combination_init();
-
    /* Get keyname and keycode pair from Tizen Key Layout file */
    res = _e_keyrouter_query_tizen_key_table();
    EINA_SAFETY_ON_FALSE_GOTO(res, err);
