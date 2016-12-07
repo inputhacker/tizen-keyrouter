@@ -16,7 +16,6 @@ BuildRequires:  pkgconfig(cynara-creds-socket)
 BuildRequires:  pkgconfig(capi-system-device)
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libtzplatform-config)
-BuildRequires:  xkb-tizen-data
 
 %description
 This package is a the Enlightenment Keyrouter Module for Tizen.
