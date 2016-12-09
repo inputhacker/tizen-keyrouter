@@ -369,6 +369,7 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
              // Not a valid surface.
              continue;
           }
+        if (ec_top->is_cursor) continue;
 
         // Check if window stack reaches to focus window
         if (ec_top == ec_focus)
