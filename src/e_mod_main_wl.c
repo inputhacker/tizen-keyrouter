@@ -1,6 +1,5 @@
 #define E_COMP_WL
 #include "e_mod_main_wl.h"
-#include <string.h>
 #include <device/power.h>
 #include <device/callback.h>
 #include <device/display.h>
@@ -41,6 +40,8 @@ static Eina_Bool _e_keyrouter_util_do_privilege_check(struct wl_client *client, 
     } \
   while (0)
 #endif
+
+int _keyrouter_log_dom = -1;
 
 static int
 _e_keyrouter_keygrab_set(struct wl_client *client, struct wl_resource *surface, uint32_t key, uint32_t mode)
@@ -155,11 +156,17 @@ _e_keyrouter_cb_keygrab_set(struct wl_client *client, struct wl_resource *resour
    int res = 0;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_set);
-   KLINF("Key grab request (client: %p, surface: %p, pid: %d, key:%d, mode:%d)", client, surface, e_keyrouter_util_get_pid(client, surface), key, mode);
 
    res = _e_keyrouter_keygrab_set(client, surface, key, mode);
 
    TRACE_INPUT_END();
+
+   if (res == TIZEN_KEYROUTER_ERROR_NONE)
+     KLDBG("Success to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d)", key, e_keyrouter_mode_to_string(mode),
+           client, surface, e_keyrouter_util_get_pid(client, surface));
+   else
+     KLINF("Failed to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d): res: %d", key, e_keyrouter_mode_to_string(mode),
+        client, surface, e_keyrouter_util_get_pid(client, surface), res);
    tizen_keyrouter_send_keygrab_notify(resource, surface, key, mode, res);
 }
 
@@ -172,11 +179,17 @@ _e_keyrouter_cb_keygrab_unset(struct wl_client *client, struct wl_resource *reso
    E_Keyrouter_Key_List_NodePtr data = NULL;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_unset);
-   KLINF("Key ungrab request (client: %p, surface: %p, pid: %d, key:%d)", client, surface, e_keyrouter_util_get_pid(client, surface), key);
 
    res = _e_keyrouter_keygrab_unset(client, surface, key);
 
    TRACE_INPUT_END();
+
+   if (res == TIZEN_KEYROUTER_ERROR_NONE)
+     KLDBG("Success to %d key ungrab request (wl_client: %p, wl_surface: %p, pid: %d)", key, client, surface,
+           e_keyrouter_util_get_pid(client, surface));
+   else
+     KLINF("Failed to %d key ungrab request (wl_client: %p, wl_surface: %p, pid: %d): res: %d", key, client, surface,
+           e_keyrouter_util_get_pid(client, surface), res);
    tizen_keyrouter_send_keygrab_notify(resource, surface, key, TIZEN_KEYROUTER_MODE_NONE, res);
    EINA_LIST_FOREACH(krt->HardKeys[key].press_ptr, l, data)
      {
@@ -216,10 +229,13 @@ _e_keyrouter_cb_keygrab_set_list(struct wl_client *client, struct wl_resource *r
 {
    E_Keyrouter_Grab_Request *grab_request = NULL;
    int res = TIZEN_KEYROUTER_ERROR_NONE;
+   int array_len = 0;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_set_list);
 
-   if (0 != (_e_keyrouter_wl_array_length(grab_list) % 3))
+   array_len = _e_keyrouter_wl_array_length(grab_list);
+
+   if (0 != (array_len % 3))
      {
         /* FIX ME: Which way is effectively to notify invalid pair to client */
         KLWRN("Invalid keycode and grab mode pair. Check arguments in a list");
@@ -230,10 +246,18 @@ _e_keyrouter_cb_keygrab_set_list(struct wl_client *client, struct wl_resource *r
 
    wl_array_for_each(grab_request, grab_list)
      {
-        KLINF("Grab request using list  (client: %p, surface: %p, pid: %d, key: %d, mode: %d]", client, surface, e_keyrouter_util_get_pid(client, surface), grab_request->key, grab_request->mode);
         res = _e_keyrouter_keygrab_set(client, surface, grab_request->key, grab_request->mode);
         grab_request->err = res;
+        if (res == TIZEN_KEYROUTER_ERROR_NONE)
+          KLDBG("Success to %d key %s grab using list(wl_client: %p, wl_surface: %p, pid: %d)",
+                grab_request->key, e_keyrouter_mode_to_string(grab_request->mode),
+                client, surface, e_keyrouter_util_get_pid(client, surface));
+        else
+          KLINF("Failed to %d key %s grab using list(wl_client: %p, wl_surface: %p, pid: %d): res: %d",
+                grab_request->key, e_keyrouter_mode_to_string(grab_request->mode),
+                client, surface, e_keyrouter_util_get_pid(client, surface), grab_request->err);
      }
+
 
    TRACE_INPUT_END();
    tizen_keyrouter_send_keygrab_notify_list(resource, surface, grab_list);
@@ -244,10 +268,13 @@ _e_keyrouter_cb_keygrab_unset_list(struct wl_client *client, struct wl_resource 
 {
    E_Keyrouter_Ungrab_Request *ungrab_request = NULL;
    int res = TIZEN_KEYROUTER_ERROR_NONE;
+   int array_len = 0;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_unset_list);
 
-   if (0 != (_e_keyrouter_wl_array_length(ungrab_list) % 2))
+   array_len = _e_keyrouter_wl_array_length(ungrab_list);
+
+   if (0 != (array_len % 2))
      {
         /* FIX ME: Which way is effectively to notify invalid pair to client */
         KLWRN("Invalid keycode and error pair. Check arguments in a list");
@@ -258,9 +285,14 @@ _e_keyrouter_cb_keygrab_unset_list(struct wl_client *client, struct wl_resource 
 
    wl_array_for_each(ungrab_request, ungrab_list)
      {
-        KLINF("Ungrab request using list  (client: %p, surface: %p, pid: %d, key: %d, res: %d]", client, surface, e_keyrouter_util_get_pid(client, surface), ungrab_request->key, res);
         res = _e_keyrouter_keygrab_unset(client, surface, ungrab_request->key);
         ungrab_request->err = res;
+        if (res == TIZEN_KEYROUTER_ERROR_NONE)
+          KLDBG("Success to ungrab using list: %d key (wl_client: %p, wl_surface: %p, pid: %d)",
+                ungrab_request->key, client, surface, e_keyrouter_util_get_pid(client, surface));
+        else
+          KLINF("Failed to ungrab using list: %d key (wl_client: %p, wl_surface: %p, pid: %d): res: %d",
+                ungrab_request->key, client, surface, e_keyrouter_util_get_pid(client, surface), ungrab_request->err);
      }
 
    TRACE_INPUT_END();
@@ -287,7 +319,6 @@ static void
 _e_keyrouter_cb_set_input_config(struct wl_client *client, struct wl_resource *resource, struct wl_resource *surface, uint32_t config_mode, uint32_t value)
 {
    Eina_Bool res = EINA_TRUE;
-   KLINF("Given Surface(%p) for mode %d with value = %d", surface, config_mode, value);
 
    if (surface == NULL && config_mode != TIZEN_KEYROUTER_CONFIG_MODE_PICTURE_OFF)
      {
@@ -311,7 +342,7 @@ _e_keyrouter_cb_set_input_config(struct wl_client *client, struct wl_resource *r
 
         case KRT_IPD_INPUT_CONFIG:
            krt->playback_daemon_surface = surface;
-           KLINF("Registered playback daemon surface: %p",surface);
+           KLINF("Registered playback daemon wl_surface: %p",surface);
            break;
 
         case TIZEN_KEYROUTER_CONFIG_MODE_INVISIBLE_GET:
@@ -336,17 +367,26 @@ _e_keyrouter_cb_set_input_config(struct wl_client *client, struct wl_resource *r
             break;
 
         default:
-            KLWRN("Wrong mode requested: %d", config_mode);
+            KLWRN("Invalid mode: %d", config_mode);
             res= EINA_FALSE;
             goto send_input_config_notify;
      }
 
    if (value)
      {
-        KLDBG("Add a surface(%p) destory listener", surface);
+        KLDBG("Add a wl_surface(%p) to destory listener", surface);
         e_keyrouter_add_surface_destroy_listener(surface);
      }
+
 send_input_config_notify:
+   if (res == TIZEN_KEYROUTER_ERROR_NONE)
+     {
+        KLDBG("Success to set input config: wl_surface (%p) for mode %d with value (%d)", surface, config_mode, value);
+     }
+   else
+     {
+        KLINF("Failed to set input config (res: %d): wl_surface (%p) for mode %d with value (%d)", res, surface, config_mode, value);
+     }
    tizen_keyrouter_send_set_input_config_notify(resource, (int)res);
 }
 
@@ -361,7 +401,7 @@ IsNoneKeyRegisterWindow(struct wl_resource *surface)
      {
         if (surface_ldata == surface)
           {
-             KLDBG("Given surface(%p) is in NoneKeyRegisterWindow", surface);
+             KLDBG("Given wl_surface(%p) is in NoneKeyRegisterWindow", surface);
              return EINA_TRUE;
           }
      }
@@ -423,7 +463,7 @@ _e_keyrouter_cb_set_register_none_key(struct wl_client *client, struct wl_resour
         krt->registered_none_key_window_list = eina_list_remove(krt->registered_none_key_window_list, surface);
      }
 
-   KLDBG("Set Registered None Key called on surface (%p) with data (%d)", surface, krt->register_none_key);
+   KLDBG("Set Registered None Key called on wl_surface (%p) with data (%d)", surface, krt->register_none_key);
    tizen_keyrouter_send_set_register_none_key_notify(resource, NULL, krt->register_none_key);
 }
 
@@ -932,6 +972,14 @@ _e_keyrouter_init(E_Module *m)
 
    TRACE_INPUT_BEGIN(_e_keyrouter_init);
 
+   _keyrouter_log_dom = eina_log_domain_register("e-keyrouter", EINA_COLOR_RED);
+   if (_keyrouter_log_dom < 0)
+     {
+        KLERR("Failed to set eina_log_domain (%d)\n", _keyrouter_log_dom);
+        return NULL;
+     }
+   eina_log_domain_level_set("e-keyrouter", EINA_LOG_LEVEL_INFO);
+
    if (!krt)
      {
         KLERR("Failed to allocate memory for krt !");
@@ -1063,6 +1111,8 @@ e_modapi_shutdown(E_Module *m)
 
    E_FREE(krt);
    /* TODO: free allocated memory */
+
+   eina_log_domain_unregister(_keyrouter_log_dom);
 
    return 1;
 }

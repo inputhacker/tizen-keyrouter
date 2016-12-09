@@ -1,13 +1,14 @@
 #ifndef E_MOD_MAIN_H
 #define E_MOD_MAIN_H
 
-#include <e.h>
+#include "e.h"
 #include <tizen-extension-server-protocol.h>
 #ifdef ENABLE_CYNARA
 #include <cynara-session.h>
 #include <cynara-client.h>
 #include <cynara-creds-socket.h>
 #endif
+#include <string.h>
 
 #ifdef TRACE_INPUT_BEGIN
 #undef TRACE_INPUT_BEGIN
@@ -32,6 +33,17 @@
 #define CHECK_ERR_VAL(val) if (TIZEN_KEYROUTER_ERROR_NONE != val) return val;
 #define CHECK_NULL(val) if (!val) return;
 #define CHECK_NULL_VAL(val) if (!val) return val;
+
+extern int _keyrouter_log_dom;
+
+#undef ERR
+#undef WRN
+#undef INF
+#undef DBG
+#define ERR(...) EINA_LOG_DOM_ERR(_keyrouter_log_dom, __VA_ARGS__)
+#define WRN(...) EINA_LOG_DOM_WARN(_keyrouter_log_dom, __VA_ARGS__)
+#define INF(...) EINA_LOG_DOM_INFO(_keyrouter_log_dom, __VA_ARGS__)
+#define DBG(...) EINA_LOG_DOM_DBG(_keyrouter_log_dom, __VA_ARGS__)
 
 #define KLERR(msg, ARG...) ERR(msg, ##ARG)
 #define KLWRN(msg, ARG...) WRN(msg, ##ARG)
@@ -189,6 +201,7 @@ char *e_keyrouter_util_cmd_get_from_pid(int pid);
 int e_keyrouter_util_keycode_get_from_string(char *name);
 char *e_keyrouter_util_keyname_get_from_keycode(int keycode);
 char *e_keyrouter_util_process_name_get_from_cmd(char *cmd);
+const char *e_keyrouter_mode_to_string(uint32_t mode);
 
 void e_keyrouter_conf_init(E_Keyrouter_Config_Data *kconfig);
 void e_keyrouter_conf_deinit(E_Keyrouter_Config_Data *kconfig);

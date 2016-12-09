@@ -7,7 +7,6 @@ pkgdir                 = $(libdir)/enlightenment/modules/$(MODULE)/$(MODULE_ARCH
 pkg_LTLIBRARIES        = module.la
 if WAYLAND_ONLY
 module_la_SOURCES      = e_mod_main_wl.c \
-                         e_mod_main_wl.h \
                          e_mod_keyrouter_list.c \
                          e_mod_keyrouter_events.c \
                          e_mod_keyrouter_conf.c \

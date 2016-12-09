@@ -13,7 +13,6 @@
  */
 
 #define E_COMP_WL
-#include "e.h"
 #include "e_mod_main_wl.h"
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus.h>
