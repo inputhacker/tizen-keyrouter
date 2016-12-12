@@ -89,15 +89,12 @@ e_keyrouter_process_key_event(void *event, int type)
         goto finish;
      }
 
-   if ((ECORE_EVENT_KEY_DOWN == type) && !krt->HardKeys[ev->keycode].keycode)
-     {
-        KLDBG("The press key(%d) isn't a grabbable key or has not been grabbed yet !", ev->keycode);
-        goto finish;
-     }
+   if (!krt->HardKeys[ev->keycode].keycode) goto finish;
 
    if ((ECORE_EVENT_KEY_UP == type) && (!krt->HardKeys[ev->keycode].press_ptr))
      {
-        KLDBG("The release key(%d) isn't a grabbable key or has not been grabbed yet !", ev->keycode);
+        KLDBG("The release key(%d) isn't a processed by keyrouter!", ev->keycode);
+        res = EINA_FALSE;
         goto finish;
      }
 
