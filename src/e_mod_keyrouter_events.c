@@ -185,7 +185,7 @@ _e_keyrouter_send_key_events_press(int type, Ecore_Event_Key *ev)
           {
             if (key_node_data)
                 {
-                 res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev, key_node_data->focused, TIZEN_KEYROUTER_MODE_REGISTERED);
+                 res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev, key_node_data->focused, TIZEN_KEYROUTER_MODE_SHARED);
 
                  pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
                  pname = e_keyrouter_util_process_name_get_from_cmd(e_keyrouter_util_cmd_get_from_pid(pid));
