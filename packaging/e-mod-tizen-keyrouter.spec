@@ -1,5 +1,3 @@
-%bcond_with wayland
-
 Name: e-mod-tizen-keyrouter
 Version: 0.1.29
 Release: 1
@@ -11,13 +9,11 @@ License: BSD-2-Clause
 BuildRequires: pkgconfig(enlightenment)
 BuildRequires:  gettext
 BuildRequires:  pkgconfig(ttrace)
-%if %{with wayland}
 BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  pkgconfig(tizen-extension-server)
 BuildRequires:  pkgconfig(cynara-client)
 BuildRequires:  pkgconfig(cynara-creds-socket)
 BuildRequires:  pkgconfig(capi-system-device)
-%endif
 BuildRequires:  pkgconfig(dbus-glib-1)
 BuildRequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  xkb-tizen-data
@@ -35,12 +31,10 @@ export CFLAGS+=" -Wall -g -fPIC -rdynamic ${GC_SECTIONS_FLAGS} -DE_LOGGING=1 "
 export LDFLAGS+=" -Wl,--hash-style=both -Wl,--as-needed -Wl,--rpath=/usr/lib"
 
 %autogen
-%if %{with wayland}
 %configure --prefix=/usr \
            --enable-wayland-only \
            --enable-cynara \
            TZ_SYS_RO_APP=%{TZ_SYS_RO_APP}
-%endif
 
 make
 
