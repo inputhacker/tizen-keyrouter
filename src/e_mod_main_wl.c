@@ -686,7 +686,8 @@ _e_keyrouter_keygrab_status_print(FILE *log_fl, Eina_List *list)
      {
         pid = e_keyrouter_util_get_pid(kdata->wc, kdata->surface);
         cmd = e_keyrouter_util_cmd_get_from_pid(pid);
-        fprintf(log_fl, "                [surface: %p, client: %p, pid: %d(%s)]\n", kdata->surface, kdata->wc, pid, cmd);
+        fprintf(log_fl, "                [surface: %p, client: %p, pid: %d(%s)]\n", kdata->surface, kdata->wc, pid, cmd ?: "Unknown");
+        if(cmd) E_FREE(cmd);
         if (kdata->surface)
           {
              fprintf(log_fl, "                    -- Surface Information --\n");
@@ -741,9 +742,8 @@ _e_keyrouter_info_print(void *data, const char *log_path)
         pid = e_keyrouter_util_get_pid(NULL, rdata->surface);
         cmd = e_keyrouter_util_cmd_get_from_pid(pid);
         fprintf(log_fl, "        [ surface: %p, client: %p, pid: %d(%s) ]\n",
-                         rdata->surface, wl_resource_get_client(rdata->surface), pid, cmd);
-        free(cmd);
-        cmd = NULL;
+                         rdata->surface, wl_resource_get_client(rdata->surface), pid, cmd ?: "Unknown");
+        if(cmd) E_FREE(cmd);
         c = 0;
         EINA_LIST_FOREACH(rdata->keys, ll, idata)
           {
@@ -799,8 +799,8 @@ _e_keyrouter_keygrab_print(void *data, const char *log_path)
 
         fprintf(log_fl, "        Focus Client: E_Client: %p\n", ec_focus);
         fprintf(log_fl, "                      Surface: %p, Client: %p\n", surface_focus, wc_focus);
-        fprintf(log_fl, "                      pid: %d, cmd: %s\n", pid_focus, cmd_focus);
-        free(cmd_focus);
+        fprintf(log_fl, "                      pid: %d, cmd: %s\n", pid_focus, cmd_focus ?: "Unknown");
+        if(cmd_focus) E_FREE(cmd_focus);
      }
    else
      {
@@ -833,9 +833,8 @@ _e_keyrouter_keygrab_print(void *data, const char *log_path)
                {
                   pid = e_keyrouter_util_get_pid(kdata->wc, kdata->surface);
                   cmd = e_keyrouter_util_cmd_get_from_pid(pid);
-                  fprintf(log_fl, "                [surface: %p, client: %p, pid: %d(%s)]\n", kdata->surface, kdata->wc, pid, cmd);
-                  free(cmd);
-                  cmd = NULL;
+                  fprintf(log_fl, "                [surface: %p, client: %p, pid: %d(%s)]\n", kdata->surface, kdata->wc, pid, cmd ?: "Unknown");
+                  if(cmd) E_FREE(cmd);
                   if (kdata->surface)
                     {
                        fprintf(log_fl, "                    -- Surface Information --\n");
