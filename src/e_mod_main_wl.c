@@ -305,13 +305,137 @@ _e_keyrouter_cb_get_keyregister_status(struct wl_client *client, struct wl_resou
    (void) client;
    (void) key;
 
-   Eina_Bool res = EINA_FALSE;
+   Eina_Bool res = EINA_FALSE, below_focus = EINA_FALSE;
+   E_Client *ec_top = NULL, *ec_focus = NULL;
+   struct wl_resource *surface = NULL, *surface_focus = NULL;
+   Eina_List* key_list = NULL, *l = NULL, *l_next = NULL;
+   E_Keyrouter_Key_List_NodePtr key_node_data = NULL;
 
-   if (krt->isRegisterDelivery)
+   int *key_data = NULL;
+   int deliver_invisible = 0;
+
+    // Check for exclusive & or_exclusive mode delivery
+   if (krt->HardKeys[key].excl_ptr || krt->HardKeys[key].or_excl_ptr)
      {
-        res = EINA_TRUE;
+        goto finish;
      }
 
+   ec_top = e_client_top_get();
+   ec_focus = e_client_focused_get();
+   surface_focus = e_keyrouter_util_get_surface_from_eclient(ec_focus);
+
+   for (; ec_top != NULL; ec_top = e_client_below_get(ec_top))
+     {
+
+        surface = e_keyrouter_util_get_surface_from_eclient(ec_top);
+
+        if (surface == NULL)
+          {
+             // Not a valid surface.
+             continue;
+          }
+
+        if (ec_top->is_cursor) continue;
+
+        // Check if window stack reaches to focus window
+        if (ec_top == ec_focus)
+          {
+             below_focus = EINA_TRUE;
+          }
+
+         //Check Top-Most Delivery
+        if( below_focus == EINA_FALSE)
+        {
+           EINA_LIST_FOREACH_SAFE(krt->HardKeys[key].top_ptr, l, l_next, key_node_data)
+             {
+                if (key_node_data)
+                  {
+                     if (ec_top == wl_resource_get_user_data(key_node_data->surface))
+                       {
+                          goto finish;
+                       }
+                   }
+              }
+         }
+
+        // Check for FORCE DELIVER to INVISIBLE WINDOW
+        if (deliver_invisible && IsInvisibleGetWindow(surface))
+          {
+             goto finish;
+          }
+
+        // Check for visible window first <Consider VISIBILITY>
+        // return if not visible
+        if (ec_top->visibility.obscured == E_VISIBILITY_FULLY_OBSCURED || ec_top->visibility.obscured == E_VISIBILITY_UNKNOWN)
+          {
+             continue;
+          }
+
+        // Set key Event Delivery for INVISIBLE WINDOW
+        if (IsInvisibleSetWindow(surface))
+          {
+             deliver_invisible = 1;
+          }
+
+        if (IsNoneKeyRegisterWindow(surface))
+          {
+             continue;
+          }
+
+        if (e_keyrouter_is_registered_window(surface))
+          {
+             // get the key list and deliver events if it has registered for that key
+             key_list = _e_keyrouter_registered_window_key_list(surface);
+             if (key_list)
+               {
+                  EINA_LIST_FOREACH(key_list, l, key_data)
+                    {
+                       if(!key_data)
+                         {
+                            continue;
+                         }
+
+                       if(*key_data == key)
+                         {
+                            res = EINA_TRUE;
+                            goto finish;
+                         }
+                    }
+               }
+          }
+
+        if (surface != surface_focus)
+          {
+             if (below_focus == EINA_FALSE)
+               {
+                  continue;
+               }
+
+             // Deliver to below Non Registered window
+             else if (!e_keyrouter_is_registered_window(surface))
+               {
+                  goto finish;
+               }
+             else
+               {
+                  continue;
+               }
+          }
+        else
+          {
+             // Deliver to Focus Surface window from FOCUS MODE
+             if (!e_keyrouter_is_registered_window(surface))
+               {
+                  goto finish;
+               }
+             else
+               {
+                  continue;
+               }
+          }
+    }
+
+   finish:
    tizen_keyrouter_send_keyregister_notify(resource, (int)res);
 }
 

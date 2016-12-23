@@ -155,7 +155,6 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
         if (res == EINA_FALSE) ret = EINA_FALSE;
      }
    krt->HardKeys[ev->keycode].press_ptr = NULL;
-   krt->isRegisterDelivery = EINA_FALSE;
 
    return ret;
 }
@@ -449,7 +448,6 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
                             KLINF("REGISTER : %s(%s:%d) => wl_surface (%p) (pid: %d) (pname: %s)",
                                   ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, surface, pid, pname ?: "Unknown");
                             *delivered_surface = surface;
-                            krt->isRegisterDelivery = EINA_TRUE;
                             if(pname) E_FREE(pname);
                             if(cmd) E_FREE(cmd);
                             return res;
