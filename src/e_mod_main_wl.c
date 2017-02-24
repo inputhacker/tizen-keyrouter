@@ -1513,7 +1513,6 @@ _e_keyrouter_util_do_privilege_check(struct wl_client *client, int socket_fd, ui
    if (CYNARA_API_ACCESS_ALLOWED == ret)
      {
         res = EINA_TRUE;
-        e_keyrouter_add_client_destroy_listener(client);
      }
    else
      {
