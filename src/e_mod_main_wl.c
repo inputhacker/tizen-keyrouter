@@ -97,6 +97,45 @@ _e_keyrouter_keygrab_set(struct wl_client *client, struct wl_resource *surface, 
    return res;
 }
 
+static void
+_e_keyrouter_keycancel_send(struct wl_client *client, struct wl_resource *surface, unsigned int key)
+{
+   Eina_List *l;
+   struct wl_resource *resource = NULL;
+   struct wl_client *wc = NULL;
+   E_Keyrouter_Key_List_NodePtr data;
+
+   if (surface) wc = wl_resource_get_client(surface);
+   else wc = client;
+
+   EINA_SAFETY_ON_NULL_RETURN(wc);
+
+   EINA_LIST_FOREACH(krt->HardKeys[key].press_ptr, l, data)
+     {
+        if (surface)
+          {
+             if (surface == data->surface)
+               {
+                  EINA_LIST_FOREACH(krt->resources, l, resource)
+                    {
+                       if (wl_resource_get_client(resource) != wc) continue;
+
+                       tizen_keyrouter_send_key_cancel(resource, key-8);
+                    }
+               }
+          }
+        else if (client == data->wc)
+          {
+             EINA_LIST_FOREACH(krt->resources, l, resource)
+               {
+                  if (wl_resource_get_client(resource) != wc) continue;
+
+                  tizen_keyrouter_send_key_cancel(resource, key-8);
+               }
+          }
+     }
+}
+
 static int
 _e_keyrouter_keygrab_unset(struct wl_client *client, struct wl_resource *surface, uint32_t key)
 {
@@ -110,7 +149,7 @@ _e_keyrouter_keygrab_unset(struct wl_client *client, struct wl_resource *surface
    if (EINA_FALSE == _e_keyrouter_util_do_privilege_check(client,
                        wl_client_get_fd(client), TIZEN_KEYROUTER_MODE_NONE, key))
      {
-        return TIZEN_KEYROUTER_ERROR_NONE;
+        goto finish;
      }
 #endif
 
@@ -127,24 +166,27 @@ _e_keyrouter_keygrab_unset(struct wl_client *client, struct wl_resource *surface
 
         /* Press List */
         e_keyrouter_find_and_remove_client_from_list(NULL, client, key, TIZEN_KEYROUTER_MODE_PRESSED);
+     }
+   else
+     {
+        /* EXCLUSIVE grab */
+        e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_EXCLUSIVE);
 
-        return TIZEN_KEYROUTER_ERROR_NONE;
+        /* OVERRIDABLE_EXCLUSIVE grab */
+        e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_OVERRIDABLE_EXCLUSIVE);
+
+        /* SHARED grab */
+        e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_SHARED);
+
+        /* REGISTERED grab */
+        e_keyrouter_unset_keyregister(surface, client, key);
+
+        /* Press List */
+        e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_PRESSED);
      }
 
-   /* EXCLUSIVE grab */
-   e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_EXCLUSIVE);
-
-   /* OVERRIDABLE_EXCLUSIVE grab */
-   e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_OVERRIDABLE_EXCLUSIVE);
-
-   /* SHARED grab */
-   e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_SHARED);
-
-   /* REGISTERED grab */
-   e_keyrouter_unset_keyregister(surface, client, key);
-
-   /* Press List */
-   e_keyrouter_find_and_remove_client_from_list(surface, client, key, TIZEN_KEYROUTER_MODE_PRESSED);
+finish:
+   _e_keyrouter_keycancel_send(client, surface, key);
 
    return TIZEN_KEYROUTER_ERROR_NONE;
 }
@@ -175,8 +217,6 @@ static void
 _e_keyrouter_cb_keygrab_unset(struct wl_client *client, struct wl_resource *resource, struct wl_resource *surface, uint32_t key)
 {
    int res = 0;
-   Eina_List *l = NULL;
-   E_Keyrouter_Key_List_NodePtr data = NULL;
 
    TRACE_INPUT_BEGIN(_e_keyrouter_cb_keygrab_unset);
 
@@ -191,20 +231,6 @@ _e_keyrouter_cb_keygrab_unset(struct wl_client *client, struct wl_resource *reso
      KLINF("Failed to %d key ungrab request (wl_client: %p, wl_surface: %p, pid: %d): res: %d", key, client, surface,
            e_keyrouter_util_get_pid(client, surface), res);
    tizen_keyrouter_send_keygrab_notify(resource, surface, key, TIZEN_KEYROUTER_MODE_NONE, res);
-   EINA_LIST_FOREACH(krt->HardKeys[key].press_ptr, l, data)
-     {
-        if (surface)
-          {
-             if (surface == data->surface)
-               {
-                  tizen_keyrouter_send_key_cancel(resource, key-8);
-               }
-          }
-        else if (client == data->wc)
-          {
-             tizen_keyrouter_send_key_cancel(resource, key-8);
-          }
-     }
 }
 
 /* tizen_keyrouter get_keygrab_status request handler */
