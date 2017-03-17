@@ -160,7 +160,7 @@ e_keyrouter_prepend_to_keylist(struct wl_resource *surface, struct wl_client *wc
    new_keyptr->surface = surface;
    new_keyptr->wc = wc;
    new_keyptr->focused = focused;
-   new_keyptr->deleted = EINA_FALSE;
+   new_keyptr->status = E_KRT_CSTAT_ALIVE;
 
    switch(mode)
      {
@@ -230,7 +230,7 @@ e_keyrouter_find_and_remove_client_from_list(struct wl_resource *surface, struct
                {
                   if (mode == TIZEN_KEYROUTER_MODE_PRESSED)
                     {
-                       key_node_data->deleted = EINA_TRUE;
+                       key_node_data->status = E_KRT_CSTAT_UNGRAB;
                     }
                   else
                     {
@@ -244,7 +244,7 @@ e_keyrouter_find_and_remove_client_from_list(struct wl_resource *surface, struct
           {
              if (mode == TIZEN_KEYROUTER_MODE_PRESSED)
                {
-                  key_node_data->deleted = EINA_TRUE;
+                  key_node_data->status = E_KRT_CSTAT_UNGRAB;
                }
              else
                {
@@ -357,13 +357,13 @@ e_keyrouter_remove_client_from_list(struct wl_resource *surface, struct wl_clien
                {
                   if (surface == key_node_data->surface)
                     {
-                       key_node_data->deleted = EINA_TRUE;
+                       key_node_data->status = E_KRT_CSTAT_DEAD;
                        KLDBG("Remove a Pressed  key(%d) by wl_surface(%p)", i, surface);
                     }
                }
              else if ((wc == key_node_data->wc))
                {
-                  key_node_data->deleted = EINA_TRUE;
+                  key_node_data->status = E_KRT_CSTAT_DEAD;
                   KLDBG("Remove a Pressed key(%d) by wl_client(%p)", i, wc);
                }
           }
@@ -526,7 +526,7 @@ _e_keyrouter_build_register_list(void)
                        node->surface = surface;
                        node->wc = NULL;
                        node->focused = EINA_FALSE;
-                       node->deleted = EINA_FALSE;
+                       node->status = E_KRT_CSTAT_ALIVE;
                        krt->HardKeys[*ddata].registered_ptr = node;
 
                        KLDBG("%d key's register wl_surface is %p", *ddata, surface);

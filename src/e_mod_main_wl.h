@@ -66,6 +66,13 @@ typedef struct _E_Keyrouter_Config_Data E_Keyrouter_Config_Data;
 #define TIZEN_KEYROUTER_MODE_PRESSED        TIZEN_KEYROUTER_MODE_REGISTERED+1
 #define TIZEN_KEYROUTER_MODE_PICTURE_OFF        TIZEN_KEYROUTER_MODE_REGISTERED+2
 
+typedef enum _E_Keyrouter_Client_Status
+{
+   E_KRT_CSTAT_DEAD = 0,
+   E_KRT_CSTAT_ALIVE,
+   E_KRT_CSTAT_UNGRAB
+} E_Keyrouter_Client_Status;
+
 typedef unsigned long Time;
 
 extern E_KeyrouterPtr krt;
@@ -97,7 +104,7 @@ struct _E_Keyrouter_Key_List_Node
    struct wl_resource *surface;
    struct wl_client *wc;
    Eina_Bool focused;
-   Eina_Bool deleted;
+   E_Keyrouter_Client_Status status;
 };
 
 struct _E_Keyrouter_Tizen_HWKey
