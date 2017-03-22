@@ -39,10 +39,6 @@ make
 %install
 rm -rf %{buildroot}
 
-# for license notification
-mkdir -p %{buildroot}/%{TZ_SYS_RO_SHARE}/license
-cp -a %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}
-
 # install
 make install DESTDIR=%{buildroot}
 
@@ -51,5 +47,5 @@ find  %{buildroot}%{_libdir}/enlightenment/modules/%{name} -name *.la | xargs rm
 
 %files
 %defattr(-,root,root,-)
+%license COPYING
 %{_libdir}/enlightenment/modules/e-mod-tizen-keyrouter
-%{TZ_SYS_RO_SHARE}/license/%{name}
