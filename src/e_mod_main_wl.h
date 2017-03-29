@@ -7,6 +7,7 @@
 #include <cynara-session.h>
 #include <cynara-client.h>
 #include <cynara-creds-socket.h>
+#include <sys/smack.h>
 #endif
 #include <string.h>
 
