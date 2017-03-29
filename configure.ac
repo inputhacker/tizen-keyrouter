@@ -133,7 +133,7 @@ AC_ARG_ENABLE(cynara,
 	[have_cynara=no]
 )
 if test "x${have_cynara}" = "xyes"; then
-	PKG_CHECK_MODULES(CYNARA, [cynara-client, cynara-creds-socket, cynara-session])
+	PKG_CHECK_MODULES(CYNARA, [cynara-client, cynara-creds-socket, cynara-session, libsmack])
 	AC_DEFINE([ENABLE_CYNARA],[1],[enable cynara])
 fi
 

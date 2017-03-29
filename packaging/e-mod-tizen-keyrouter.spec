@@ -15,6 +15,7 @@ BuildRequires:  pkgconfig(cynara-client)
 BuildRequires:  pkgconfig(cynara-creds-socket)
 BuildRequires:  pkgconfig(capi-system-device)
 BuildRequires:  pkgconfig(libtzplatform-config)
+BuildRequires:  pkgconfig(libsmack)
 
 %description
 This package is a the Enlightenment Keyrouter Module for Tizen.
