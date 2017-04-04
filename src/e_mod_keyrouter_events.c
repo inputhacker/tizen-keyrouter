@@ -134,11 +134,11 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
    /* Deliver release  clean up pressed key list */
    EINA_LIST_FREE(krt->HardKeys[ev->keycode].press_ptr, key_node_data)
      {
-        res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
-                                          key_node_data->focused, TIZEN_KEYROUTER_MODE_PRESSED);
-
         if (key_node_data->status == E_KRT_CSTAT_ALIVE)
           {
+             res = _e_keyrouter_send_key_event(type, key_node_data->surface, key_node_data->wc, ev,
+                                               key_node_data->focused, TIZEN_KEYROUTER_MODE_PRESSED);
+
              pid = e_keyrouter_util_get_pid(key_node_data->wc, key_node_data->surface);
              cmd = e_keyrouter_util_cmd_get_from_pid(pid);
              pname = e_keyrouter_util_process_name_get_from_cmd(cmd);
@@ -150,6 +150,7 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
           }
         else
           {
+             if (key_node_data->focused == EINA_TRUE) res = EINA_FALSE;
              KLINF("Release Pair : %s(%s:%d)(Focus: %d)(Status: %d) => wl_surface (%p) wl_client (%p) process is ungrabbed / dead",
                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, key_node_data->focused,
                       key_node_data->status, key_node_data->surface, key_node_data->wc);
