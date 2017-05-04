@@ -202,8 +202,18 @@ _e_keyrouter_cb_keygrab_set(struct wl_client *client, struct wl_resource *resour
    TRACE_INPUT_END();
 
    if (res == TIZEN_KEYROUTER_ERROR_NONE)
-     KLDBG("Success to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d)", key, e_keyrouter_mode_to_string(mode),
-           client, surface, e_keyrouter_util_get_pid(client, surface));
+     {
+        if (mode == TIZEN_KEYROUTER_MODE_EXCLUSIVE)
+          {
+             KLINF("Success to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d)", key, e_keyrouter_mode_to_string(mode),
+                client, surface, e_keyrouter_util_get_pid(client, surface));
+          }
+        else
+          {
+             KLDBG("Success to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d)", key, e_keyrouter_mode_to_string(mode),
+                client, surface, e_keyrouter_util_get_pid(client, surface));
+          }
+     }
    else
      KLINF("Failed to %d key %s grab request (wl_client: %p, wl_surface: %p, pid: %d): res: %d", key, e_keyrouter_mode_to_string(mode),
         client, surface, e_keyrouter_util_get_pid(client, surface), res);
