@@ -733,8 +733,8 @@ char *
 e_keyrouter_util_process_name_get_from_cmd(char *cmd)
 {
    int len, i;
-   char pbuf = NULL;
-   char *pname;
+   char pbuf = '\0';
+   char *pname = NULL;
    if (cmd)
      {
         len = strlen(cmd);
