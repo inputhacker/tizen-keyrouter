@@ -53,26 +53,15 @@ extern int _keyrouter_log_dom;
 
 typedef struct _E_Keyrouter E_Keyrouter;
 typedef struct _E_Keyrouter* E_KeyrouterPtr;
-typedef struct _E_Keyrouter_Key_List_Node E_Keyrouter_Key_List_Node;
-typedef struct _E_Keyrouter_Key_List_Node* E_Keyrouter_Key_List_NodePtr;
-typedef struct _E_Keyrouter_Tizen_HWKey E_Keyrouter_Tizen_HWKey;
-typedef struct _E_Keyrouter_Grabbed_Key E_Keyrouter_Grabbed_Key;
 typedef struct _E_Keyrouter_Grab_Request E_Keyrouter_Grab_Request;
 typedef struct _E_Keyrouter_Ungrab_Request E_Keyrouter_Ungrab_Request;
-typedef struct _E_Keyrouter_Registered_Window_Info E_Keyrouter_Registered_Window_Info;
+
 
 typedef struct _E_Keyrouter_Conf_Edd E_Keyrouter_Conf_Edd;
 typedef struct _E_Keyrouter_Config_Data E_Keyrouter_Config_Data;
 
 #define TIZEN_KEYROUTER_MODE_PRESSED        TIZEN_KEYROUTER_MODE_REGISTERED+1
 #define TIZEN_KEYROUTER_MODE_PICTURE_OFF        TIZEN_KEYROUTER_MODE_REGISTERED+2
-
-typedef enum _E_Keyrouter_Client_Status
-{
-   E_KRT_CSTAT_DEAD = 0,
-   E_KRT_CSTAT_ALIVE,
-   E_KRT_CSTAT_UNGRAB
-} E_Keyrouter_Client_Status;
 
 typedef unsigned long Time;
 
@@ -92,44 +81,6 @@ struct _E_Keyrouter_Config_Data
    E_Config_DD *conf_edd;
    E_Config_DD *conf_hwkeys_edd;
    E_Keyrouter_Conf_Edd *conf;
-};
-
-struct _E_Keyrouter_Registered_Window_Info
-{
-   struct wl_resource *surface;
-   Eina_List *keys;
-};
-
-struct _E_Keyrouter_Key_List_Node
-{
-   struct wl_resource *surface;
-   struct wl_client *wc;
-   Eina_Bool focused;
-   E_Keyrouter_Client_Status status;
-};
-
-struct _E_Keyrouter_Tizen_HWKey
-{
-   char *name;
-   int keycode;
-   int no_privcheck;
-   int repeat;
-};
-
-struct _E_Keyrouter_Grabbed_Key
-{
-   int keycode;
-   char* keyname;
-   Eina_Bool no_privcheck;
-   Eina_Bool repeat;
-
-   Eina_List *excl_ptr;
-   Eina_List *or_excl_ptr;
-   Eina_List *top_ptr;
-   Eina_List *shared_ptr;
-   Eina_List *press_ptr;
-   E_Keyrouter_Key_List_Node *registered_ptr;
-   Eina_List *pic_off_ptr;
 };
 
 struct _E_Keyrouter

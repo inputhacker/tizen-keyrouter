@@ -1123,6 +1123,19 @@ static Eina_Bool _e_keyrouter_cb_idler(void *data)
     return ECORE_CALLBACK_CANCEL;
 }
 
+static void *
+_e_keyrouter_keygrab_list_get(void)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(krt, NULL);
+   return krt->HardKeys;
+}
+
+static int
+_e_keyrouter_max_keycode_get(void)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(krt, 0);
+   return krt->max_tizen_hwkeys;
+}
 
 static E_Keyrouter_Config_Data *
 _e_keyrouter_init(E_Module *m)
@@ -1182,6 +1195,9 @@ _e_keyrouter_init(E_Module *m)
         KLERR("Failed to create global !");
         goto err;
      }
+
+   e_keyrouter.keygrab_list_get = _e_keyrouter_keygrab_list_get;
+   e_keyrouter.max_keycode_get = _e_keyrouter_max_keycode_get;
 
 #ifdef ENABLE_CYNARA
    ret = cynara_initialize(&krt->p_cynara, NULL);

@@ -91,6 +91,11 @@ e_keyrouter_process_key_event(void *event, int type)
 
    if (!krt->HardKeys[ev->keycode].keycode) goto finish;
 
+   if (!e_keyrouter_intercept_hook_call(E_KEYROUTER_INTERCEPT_HOOK_BEFORE_KEYROUTING, type, ev))
+     {
+        goto finish;
+     }
+
    if ((ECORE_EVENT_KEY_UP == type) && (!krt->HardKeys[ev->keycode].press_ptr))
      {
         KLDBG("The release key(%d) isn't a processed by keyrouter!", ev->keycode);
@@ -357,6 +362,16 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
    Eina_Bool res = EINA_TRUE;
    int pid = 0;
    char *pname = NULL, *cmd = NULL;
+
+   if (!e_keyrouter_intercept_hook_call(E_KEYROUTER_INTERCEPT_HOOK_DELIVER_FOCUS, type, ev))
+     {
+        if (ev->data)
+          {
+             *delivered_surface = ev->data;
+             ev->data = wl_resource_get_client(ev->data);
+          }
+        return res;
+     }
 
    ec_top = e_client_top_get();
    ec_focus = e_client_focused_get();
