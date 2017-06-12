@@ -155,13 +155,22 @@ _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key *ev)
           }
         else
           {
-             if (key_node_data->focused == EINA_TRUE) res = EINA_FALSE;
+             if (key_node_data->focused == EINA_TRUE)
+               {
+                  res = EINA_FALSE;
+                  if (key_node_data->status == E_KRT_CSTAT_DEAD)
+                    {
+                       ev->data = key_node_data->wc;
+                    }
+                  else
+                    {
+                       ev->data = (void *)0x1;
+                    }
+               }
              KLINF("Release Pair : %s(%s:%d)(Focus: %d)(Status: %d) => wl_surface (%p) wl_client (%p) process is ungrabbed / dead",
                       ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keyname, ev->keycode, key_node_data->focused,
                       key_node_data->status, key_node_data->surface, key_node_data->wc);
           }
-
-        if (key_node_data->focused && key_node_data->status != E_KRT_CSTAT_ALIVE) ev->data = (void *)0x1;
 
         E_FREE(key_node_data);
         if (res == EINA_FALSE) ret = EINA_FALSE;
