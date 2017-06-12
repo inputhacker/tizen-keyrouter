@@ -359,6 +359,7 @@ e_keyrouter_remove_client_from_list(struct wl_resource *surface, struct wl_clien
                     {
                        key_node_data->status = E_KRT_CSTAT_DEAD;
                        KLDBG("Remove a Pressed  key(%d) by wl_surface(%p)", i, surface);
+                       key_node_data->wc = wl_resource_get_client(surface);
                     }
                }
              else if ((wc == key_node_data->wc))
