@@ -855,7 +855,7 @@ _e_keyrouter_keygrab_status_print(FILE *log_fl, Eina_List *list)
           {
              fprintf(log_fl, "                    -- Surface Information --\n");
              fprintf(log_fl, "                        = client: %p\n", wl_resource_get_client(kdata->surface));
-             fprintf(log_fl, "                        = resource: %s(%d)\n", wl_resource_get_name(kdata->surface), wl_resource_get_id(kdata->surface));
+             fprintf(log_fl, "                        = resource: %s(%d)\n", wl_resource_get_class(kdata->surface), wl_resource_get_id(kdata->surface));
           }
         else
           {
@@ -1002,7 +1002,7 @@ _e_keyrouter_keygrab_print(void *data, const char *log_path)
                     {
                        fprintf(log_fl, "                    -- Surface Information --\n");
                        fprintf(log_fl, "                        = wl_client: %p\n", wl_resource_get_client(kdata->surface));
-                       fprintf(log_fl, "                        = resource: %s(%d)\n", wl_resource_get_name(kdata->surface), wl_resource_get_id(kdata->surface));
+                       fprintf(log_fl, "                        = resource: %s(%d)\n", wl_resource_get_class(kdata->surface), wl_resource_get_id(kdata->surface));
                     }
                   else
                     {
