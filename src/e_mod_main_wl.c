@@ -886,7 +886,7 @@ _e_keyrouter_info_print(void *data, const char *log_path)
 
    fprintf(log_fl, "\n===== Keyrouter Information =====\n");
    fprintf(log_fl, "    ----- Grabbable Keys -----\n");
-   for (i = 8; i < krt->max_tizen_hwkeys; i++)
+   for (i = 8; i <= krt->max_tizen_hwkeys; i++)
      {
         if (!krt->HardKeys[i].keycode) continue;
 
@@ -972,7 +972,7 @@ _e_keyrouter_keygrab_print(void *data, const char *log_path)
    fprintf(log_fl, "    ----- End -----\n\n");
 
    fprintf(log_fl, "    ----- Grabbed keys Info -----\n\n");
-   for (i = 8; i < krt->max_tizen_hwkeys; i++)
+   for (i = 8; i <= krt->max_tizen_hwkeys; i++)
      {
         if (!krt->HardKeys[i].keycode) continue;
         if (!krt->HardKeys[i].excl_ptr &&
