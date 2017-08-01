@@ -40,6 +40,7 @@ _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client 
 
    len = sizeof(Ecore_Event_Key) + strlen(ev->key) + strlen(ev->keyname) + ((ev->compose) ? strlen(ev->compose) : 0) + 3;
    ev_cpy = calloc(1, len);
+   if (!ev_cpy) return;
    memcpy(ev_cpy, ev, len);
    ev_cpy->data = send_surface;
 

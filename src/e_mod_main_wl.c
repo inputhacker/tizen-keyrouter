@@ -1009,7 +1009,6 @@ _e_keyrouter_keygrab_print(void *data, const char *log_path)
                        fprintf(log_fl, "                    -- Client Information --\n");
                        fprintf(log_fl, "                        = connected fd: %d\n", wl_client_get_fd(kdata->wc));
                     }
-                  break;
                }
             }
 

@@ -524,13 +524,16 @@ _e_keyrouter_build_register_list(void)
                   if (!krt->HardKeys[*ddata].registered_ptr)
                     {
                        node = E_NEW(E_Keyrouter_Key_List_Node, 1);
-                       node->surface = surface;
-                       node->wc = NULL;
-                       node->focused = EINA_FALSE;
-                       node->status = E_KRT_CSTAT_ALIVE;
-                       krt->HardKeys[*ddata].registered_ptr = node;
+                       if (node)
+                         {
+                            node->surface = surface;
+                            node->wc = NULL;
+                            node->focused = EINA_FALSE;
+                            node->status = E_KRT_CSTAT_ALIVE;
+                            krt->HardKeys[*ddata].registered_ptr = node;
 
-                       KLDBG("%d key's register wl_surface is %p", *ddata, surface);
+                            KLDBG("%d key's register wl_surface is %p", *ddata, surface);
+                         }
                     }
                }
 
@@ -647,8 +650,11 @@ _e_keyrouter_add_registered_surface_in_list(struct wl_resource *surface, int key
              if (EINA_TRUE == key_finded) break;
 
              key_added = E_NEW(int, 1);
-             *key_added = key;
-             rwin_info->keys = eina_list_append(rwin_info->keys, key_added);
+             if (key_added)
+               {
+                  *key_added = key;
+                  rwin_info->keys = eina_list_append(rwin_info->keys, key_added);
+               }
              surface_finded = EINA_TRUE;
 
              KLDBG("Registered Key(%d) is added to wl_surface (%p)", key, surface);
@@ -659,8 +665,14 @@ _e_keyrouter_add_registered_surface_in_list(struct wl_resource *surface, int key
    if (EINA_FALSE == surface_finded)
      {
         rwin_added = E_NEW(E_Keyrouter_Registered_Window_Info, 1);
+        if (!rwin_added) return;
         rwin_added->surface = surface;
         key_added = E_NEW(int, 1);
+        if (!key_added)
+          {
+             free(rwin_added);
+             return;
+          }
         *key_added = key;
         rwin_added->keys = eina_list_append(rwin_added->keys, key_added);
         krt->registered_window_list = eina_list_append(krt->registered_window_list, rwin_added);
