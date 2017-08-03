@@ -69,10 +69,10 @@ extern E_KeyrouterPtr krt;
 
 struct _E_Keyrouter_Conf_Edd
 {
-   int num_keycode;
-   int max_keycode;
-   int pictureoff_disabled;
-   Eina_List *KeyList;
+   int num_keycode;          // The numbers of keyrouted keycodes defined by xkb-tizen-data
+   int max_keycode;          // The max value of keycodes
+   int pictureoff_disabled;  // To disable picture_off feature.
+   Eina_List *KeyList;       // The list of routed key data: E_Keyrouter_Tizen_HWKey
 };
 
 struct _E_Keyrouter_Config_Data
