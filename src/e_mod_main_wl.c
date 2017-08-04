@@ -1244,6 +1244,7 @@ e_modapi_shutdown(E_Module *m)
    E_FREE(kconfig);
 
    _e_keyrouter_deinit_handlers();
+   if (krt->ef_handler) ecore_event_filter_del(krt->ef_handler);
 
    for (i = 0; i < krt->max_tizen_hwkeys+1; i++)
      {
