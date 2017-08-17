@@ -1,5 +1,5 @@
 Name: e-mod-tizen-keyrouter
-Version: 0.1.40
+Version: 0.1.41
 Release: 1
 Summary: The Enlightenment Keyrouter Module for Tizen
 URL: http://www.enlightenment.org
