@@ -797,7 +797,7 @@ e_keyrouter_add_surface_destroy_listener(struct wl_resource *surface)
 static void
 _e_keyrouter_cb_destroy(struct wl_client *client, struct wl_resource *resource)
 {
-   krt->resources = eina_list_remove(krt->resources, resource);
+   wl_resource_destroy(resource);
 }
 
 static const struct tizen_keyrouter_interface _e_keyrouter_implementation = {
@@ -812,6 +812,12 @@ static const struct tizen_keyrouter_interface _e_keyrouter_implementation = {
    _e_keyrouter_cb_set_input_config,
    _e_keyrouter_cb_destroy,
 };
+
+static void
+_e_keyrouter_cb_unbind(struct wl_resource *resource)
+{
+   krt->resources = eina_list_remove(krt->resources, resource);
+}
 
 /* tizen_keyrouter global object bind function */
 static void
@@ -833,7 +839,7 @@ _e_keyrouter_cb_bind(struct wl_client *client, void *data, uint32_t version, uin
 
    krt->resources = eina_list_append(krt->resources, resource);
 
-   wl_resource_set_implementation(resource, &_e_keyrouter_implementation, krt_instance, _e_keyrouter_cb_destroy);
+   wl_resource_set_implementation(resource, &_e_keyrouter_implementation, krt_instance, _e_keyrouter_cb_unbind);
 }
 
 static void
