@@ -31,23 +31,50 @@ _e_keyrouter_is_key_grabbed(int key)
 }
 
 static void
+_e_keyrouter_event_key_free(void *data EINA_UNUSED, void *ev)
+{
+   Ecore_Event_Key *e = ev;
+
+   eina_stringshare_del(e->keyname);
+   eina_stringshare_del(e->key);
+   eina_stringshare_del(e->string);
+   eina_stringshare_del(e->compose);
+
+   E_FREE(e);
+}
+
+static void
 _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client *send_surface)
 {
-   Ecore_Event_Key *ev_cpy;
-   int len;
+   Ecore_Event_Key *ev_cpy = NULL;
+
+   ev_cpy = E_NEW(Ecore_Event_Key, 1);
+   EINA_SAFETY_ON_NULL_RETURN(ev_cpy);
 
    KLDBG("Generate new key event! send to wl_surface: %p (pid: %d)", send_surface, e_keyrouter_util_get_pid(send_surface, NULL));
 
-   len = sizeof(Ecore_Event_Key) + strlen(ev->key) + strlen(ev->keyname) + ((ev->compose) ? strlen(ev->compose) : 0) + 3;
-   ev_cpy = calloc(1, len);
-   if (!ev_cpy) return;
-   memcpy(ev_cpy, ev, len);
+   ev_cpy->keyname = (char *)eina_stringshare_add(ev->keyname);
+   ev_cpy->key = (char *)eina_stringshare_add(ev->key);
+   ev_cpy->string = (char *)eina_stringshare_add(ev->string);
+   ev_cpy->compose = (char *)eina_stringshare_add(ev->compose);
+
+   ev_cpy->window = ev->window;
+   ev_cpy->root_window = ev->root_window;
+   ev_cpy->event_window = ev->event_window;
+
+   ev_cpy->timestamp = (int)(ecore_time_get()*1000);
+   ev_cpy->modifiers = ev->modifiers;
+
+   ev_cpy->same_screen = ev->same_screen;
+   ev_cpy->keycode = ev->keycode;
+
    ev_cpy->data = send_surface;
+   ev_cpy->dev = ev->dev;
 
    if (ECORE_EVENT_KEY_DOWN == type)
-     ecore_event_add(ECORE_EVENT_KEY_DOWN, ev_cpy, NULL, NULL);
+     ecore_event_add(ECORE_EVENT_KEY_DOWN, ev_cpy, _e_keyrouter_event_key_free, NULL);
    else
-     ecore_event_add(ECORE_EVENT_KEY_UP, ev_cpy, NULL, NULL);
+     ecore_event_add(ECORE_EVENT_KEY_UP, ev_cpy, _e_keyrouter_event_key_free, NULL);
 }
 
 /* Function for checking the existing grab for a key and sending key event(s) */
