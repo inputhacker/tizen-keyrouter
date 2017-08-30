@@ -826,7 +826,7 @@ _e_keyrouter_cb_bind(struct wl_client *client, void *data, uint32_t version, uin
    E_KeyrouterPtr krt_instance = data;
    struct wl_resource *resource;
 
-   resource = wl_resource_create(client, &tizen_keyrouter_interface, MIN(version, 1), id);
+   resource = wl_resource_create(client, &tizen_keyrouter_interface, MIN(version, 2), id);
 
    KLDBG("wl_resource_create(...,&tizen_keyrouter_interface,...)");
 
@@ -1193,7 +1193,7 @@ _e_keyrouter_init(E_Module *m)
      ecore_idle_enterer_add(_e_keyrouter_cb_idler, NULL);
    _e_keyrouter_init_handlers();
 
-   krt->global = wl_global_create(e_comp_wl->wl.disp, &tizen_keyrouter_interface, 1, krt, _e_keyrouter_cb_bind);
+   krt->global = wl_global_create(e_comp_wl->wl.disp, &tizen_keyrouter_interface, 2, krt, _e_keyrouter_cb_bind);
    if (!krt->global)
      {
         KLERR("Failed to create global !");
