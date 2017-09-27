@@ -7,7 +7,7 @@ static Eina_Bool _e_keyrouter_send_key_events_release(int type, Ecore_Event_Key 
 static Eina_Bool _e_keyrouter_send_key_event(int type, struct wl_resource *surface, struct wl_client *wc, Ecore_Event_Key *ev, Eina_Bool focused, unsigned int mode);
 
 static Eina_Bool _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface, Ecore_Event_Key *ev, struct wl_resource **delivered_surface);
-static void _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client *send_surface);
+static void _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client *wc, struct wl_resource *surface, int mode);
 
 static Eina_Bool _e_keyrouter_is_key_grabbed(int key);
 static Eina_Bool _e_keyrouter_check_top_visible_window(E_Client *ec_focus, int arr_idx);
@@ -44,14 +44,38 @@ _e_keyrouter_event_key_free(void *data EINA_UNUSED, void *ev)
 }
 
 static void
-_e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client *send_surface)
+_e_keyrouter_event_generate_keyrouter_key(Ecore_Event_Key *ev, int type, struct wl_client *wc, struct wl_resource *surface, int mode)
+{
+   E_Keyrouter_Event_Key *e;
+
+   KLDBG("Generate new routed key event! send to client: %p, surface: %p (pid: %d)", wc, surface, e_keyrouter_util_get_pid(wc, surface));
+
+   e = E_NEW(E_Keyrouter_Event_Key, 1);
+   EINA_SAFETY_ON_NULL_RETURN(e);
+
+   e->pressed = (type==ECORE_EVENT_KEY_DOWN)?EINA_TRUE:EINA_FALSE;
+   e->keycode = ev->keycode;
+   e->window = ev->window;
+   e->timestamp = ev->timestamp;
+   e->modifiers = ev->modifiers;
+   e->dev = ev->dev;
+
+   e->routed.client = wc;
+   e->routed.surface = surface;
+   e->routed.mode = mode;
+
+   ecore_event_add(E_KEYROUTER_EVENT_KEY, e, NULL, NULL);
+}
+
+static void
+_e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client *wc, struct wl_resource *surface, int mode)
 {
    Ecore_Event_Key *ev_cpy = NULL;
 
    ev_cpy = E_NEW(Ecore_Event_Key, 1);
    EINA_SAFETY_ON_NULL_RETURN(ev_cpy);
 
-   KLDBG("Generate new key event! send to wl_surface: %p (pid: %d)", send_surface, e_keyrouter_util_get_pid(send_surface, NULL));
+   KLDBG("Generate new key event! send to wl_surface: %p (pid: %d)", surface, e_keyrouter_util_get_pid(wc, surface));
 
    ev_cpy->keyname = (char *)eina_stringshare_add(ev->keyname);
    ev_cpy->key = (char *)eina_stringshare_add(ev->key);
@@ -68,13 +92,15 @@ _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client 
    ev_cpy->same_screen = ev->same_screen;
    ev_cpy->keycode = ev->keycode;
 
-   ev_cpy->data = send_surface;
+   ev_cpy->data = wc;
    ev_cpy->dev = ev->dev;
 
    if (ECORE_EVENT_KEY_DOWN == type)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, ev_cpy, _e_keyrouter_event_key_free, NULL);
    else
      ecore_event_add(ECORE_EVENT_KEY_UP, ev_cpy, _e_keyrouter_event_key_free, NULL);
+
+   _e_keyrouter_event_generate_keyrouter_key(ev, type, wc, surface, mode);
 }
 
 /* Function for checking the existing grab for a key and sending key event(s) */
@@ -91,7 +117,7 @@ e_keyrouter_process_key_event(void *event, int type)
 
    if (ev->data)
      {
-        KLDBG("data is exist send to compositor: %p", ev->data);
+        KLDBG("data is exist send to compositor");
         goto finish;
      }
 
@@ -106,7 +132,7 @@ e_keyrouter_process_key_event(void *event, int type)
        wc = wl_resource_get_client(krt->playback_daemon_surface);
        if (wc)
          {
-            _e_keyrouter_event_generate_key(ev, type, wc);
+            _e_keyrouter_event_generate_key(ev, type, wc, krt->playback_daemon_surface, 0);
             KLDBG("Sent key to playback-daemon");
          }
      }
@@ -134,7 +160,7 @@ e_keyrouter_process_key_event(void *event, int type)
    //KLDBG("The key(%d) is going to be sent to the proper wl client(s) !", ev->keycode);
    KLDBG("[%s] keyname: %s, key: %s, keycode: %d", (type == ECORE_EVENT_KEY_DOWN) ? "KEY_PRESS" : "KEY_RELEASE", ev->keyname, ev->key, ev->keycode);
    if (_e_keyrouter_send_key_events(type, ev))
-     res = EINA_FALSE;
+     res = EINA_TRUE;
 
 finish:
    return res;
@@ -405,7 +431,6 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
         if (ev->data)
           {
              *delivered_surface = ev->data;
-             ev->data = wl_resource_get_client(ev->data);
           }
         return res;
      }
@@ -654,12 +679,19 @@ _e_keyrouter_send_key_event(int type, struct wl_resource *surface, struct wl_cli
      }
    else
      {
-        if (focused == EINA_TRUE) ev->data = wc_send;
+        if (focused == EINA_TRUE)
+          {
+             ev->data = wc_send;
+          }
      }
-
-   if (focused == EINA_TRUE) return EINA_FALSE;
-
-   _e_keyrouter_event_generate_key(ev, type, wc_send);
+   if (focused == EINA_TRUE)
+     {
+        _e_keyrouter_event_generate_keyrouter_key(ev, type, wc_send, surface, mode);
+     }
+   else
+     {
+        _e_keyrouter_event_generate_key(ev, type, wc_send, surface, mode);
+     }
 
    return EINA_TRUE;
 }
