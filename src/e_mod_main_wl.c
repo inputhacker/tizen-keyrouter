@@ -1157,6 +1157,7 @@ _e_keyrouter_event_surface_send(struct wl_resource *surface, int key, int mode)
    EINA_LIST_FOREACH(krt->resources, l, res_data)
      {
         if (wl_resource_get_client(res_data) != wc) continue;
+        if (wl_resource_get_version(res_data) < 2) continue;
 
         tizen_keyrouter_send_event_surface(res_data, surface, key, mode);
      }
