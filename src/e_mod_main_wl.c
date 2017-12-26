@@ -1267,6 +1267,7 @@ e_modapi_shutdown(E_Module *m)
    struct wl_resource *resource;
    struct wl_client *client;
    struct wl_listener *destroy_listener;
+   int *keycode_data;
 
    e_keyrouter_conf_deinit(kconfig);
    E_FREE(kconfig);
@@ -1280,6 +1281,9 @@ e_modapi_shutdown(E_Module *m)
           eina_stringshare_del(krt->HardKeys[i].keyname);
      }
    E_FREE(krt->HardKeys);
+
+   EINA_LIST_FREE(krt->ignore_list, keycode_data)
+     E_FREE(keycode_data);
 
    EINA_LIST_FOREACH_SAFE(krt->grab_client_list, l, l_next, client)
      {

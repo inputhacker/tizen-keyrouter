@@ -110,6 +110,8 @@ e_keyrouter_process_key_event(void *event, int type)
    Eina_Bool res = EINA_TRUE;
    Ecore_Event_Key *ev = event;
    struct wl_client *wc;
+   Eina_List *l, *l_next;
+   int *keycode_data;
 
    if (!ev) goto finish;
 
@@ -121,10 +123,25 @@ e_keyrouter_process_key_event(void *event, int type)
         goto finish;
      }
 
-   if (ev->modifiers != 0)
+   if ((ev->modifiers != 0) && (type == ECORE_EVENT_KEY_DOWN))
      {
         KLDBG("Modifier key delivered to Focus window : Key %s(%d)", ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keycode);
+        keycode_data = E_NEW(int, 1);
+        *keycode_data = ev->keycode;
+        krt->ignore_list = eina_list_append(krt->ignore_list, keycode_data);
         goto finish;
+     }
+
+   EINA_LIST_FOREACH_SAFE(krt->ignore_list, l, l_next, keycode_data)
+     {
+        if (*keycode_data == ev->keycode)
+          {
+             KLDBG("Find ignore key, propagate event (%d)\n", ev->keycode);
+             E_FREE(keycode_data);
+             krt->ignore_list = eina_list_remove_list(krt->ignore_list, l);
+
+             goto finish;
+          }
      }
 
    if (krt->playback_daemon_surface)

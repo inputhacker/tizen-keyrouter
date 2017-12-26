@@ -111,6 +111,8 @@ struct _E_Keyrouter
 #endif
    int isPictureOffEnabled;
    Eina_Bool pictureoff_disabled;
+
+   Eina_List *ignore_list;
 };
 
 struct _E_Keyrouter_Grab_Request {
