@@ -643,7 +643,7 @@ _e_keyrouter_cb_keygrab_get_list(struct wl_client *client, struct wl_resource *r
 
    wl_array_init(&grab_result_list);
 
-   for (i = 0; i < krt->max_tizen_hwkeys; i++)
+   for (i = 0; i <= krt->max_tizen_hwkeys; i++)
      {
         if (0 == krt->HardKeys[i].keycode) continue;
 
