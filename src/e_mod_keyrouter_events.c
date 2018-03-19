@@ -40,6 +40,8 @@ _e_keyrouter_event_key_free(void *data EINA_UNUSED, void *ev)
    eina_stringshare_del(e->string);
    eina_stringshare_del(e->compose);
 
+   if (e->dev) ecore_device_unref(e->dev);
+
    E_FREE(e);
 }
 
@@ -69,7 +71,7 @@ _e_keyrouter_event_generate_key(Ecore_Event_Key *ev, int type, struct wl_client 
    ev_cpy->keycode = ev->keycode;
 
    ev_cpy->data = send_surface;
-   ev_cpy->dev = ev->dev;
+   ev_cpy->dev = ecore_device_ref(ev->dev);
 
    if (ECORE_EVENT_KEY_DOWN == type)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, ev_cpy, _e_keyrouter_event_key_free, NULL);
