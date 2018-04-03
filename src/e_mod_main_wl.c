@@ -1319,6 +1319,7 @@ _e_keyrouter_query_tizen_key_table(void)
    E_Keyrouter_Tizen_HWKey *data;
    int res;
    struct xkb_rule_names names={0,};
+   Eina_Bool use_keymap_cache = e_comp_wl_input_keymap_cache_file_use_get();
 
    /* TODO: Make struct in HardKeys to pointer.
                   If a key is defined, allocate memory to pointer,
@@ -1344,7 +1345,7 @@ _e_keyrouter_query_tizen_key_table(void)
         krt->HardKeys[data->keycode].no_privcheck = data->no_privcheck ? EINA_TRUE : EINA_FALSE;
         krt->HardKeys[data->keycode].repeat = data->repeat ? EINA_TRUE : EINA_FALSE;
 
-        if (e_comp_wl_input_keymap_cache_file_use_get() == EINA_FALSE)
+        if (use_keymap_cache == EINA_FALSE)
           {
              if (krt->HardKeys[data->keycode].repeat == EINA_FALSE)
                {
@@ -1357,7 +1358,7 @@ _e_keyrouter_query_tizen_key_table(void)
           }
      }
 
-   if (e_comp_wl_input_keymap_cache_file_use_get() == EINA_FALSE)
+   if (use_keymap_cache == EINA_FALSE)
      {
         KLINF("Server create a new cache file: %s", e_comp_wl_input_keymap_path_get(names));
         res = unlink(e_comp_wl_input_keymap_path_get(names));
