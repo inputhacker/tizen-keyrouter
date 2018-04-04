@@ -404,7 +404,7 @@ _e_keyrouter_send_key_events_focus(int type, struct wl_resource *surface_focus, 
 
    if (!e_keyrouter_intercept_hook_call(E_KEYROUTER_INTERCEPT_HOOK_DELIVER_FOCUS, type, ev))
      {
-        if (ev->data)
+        if (ev->data && ev->data != (void *)0x1)
           {
              *delivered_surface = ev->data;
              ev->data = wl_resource_get_client(ev->data);
