@@ -1,3 +1,4 @@
+#ifndef _F_ENABLE_KEYROUTER_CORE
 #define E_COMP_WL
 #include "e_mod_main_wl.h"
 #include <device/power.h>
@@ -1580,4 +1581,5 @@ finish:
 
    return res;
 }
+#endif
 #endif

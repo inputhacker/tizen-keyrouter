@@ -1,6 +1,8 @@
 #ifndef E_MOD_MAIN_H
 #define E_MOD_MAIN_H
 
+#ifndef _F_ENABLE_KEYROUTER_CORE
+
 #include "e.h"
 #include <tizen-extension-server-protocol.h>
 #ifdef ENABLE_CYNARA
@@ -165,4 +167,5 @@ void e_keyrouter_conf_init(E_Keyrouter_Config_Data *kconfig);
 void e_keyrouter_conf_deinit(E_Keyrouter_Config_Data *kconfig);
 int e_keyrouter_cb_picture_off(const int option, void *data);
 
+#endif
 #endif

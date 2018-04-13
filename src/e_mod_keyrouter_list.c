@@ -1,3 +1,4 @@
+#ifndef _F_ENABLE_KEYROUTER_CORE
 #define E_COMP_WL
 #include "e_mod_main_wl.h"
 
@@ -794,3 +795,4 @@ _e_keyrouter_get_list(int mode, int key)
 
    return list;
 }
+#endif

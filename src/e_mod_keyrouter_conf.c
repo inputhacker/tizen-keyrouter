@@ -1,3 +1,5 @@
+#ifndef _F_ENABLE_KEYROUTER_CORE
+
 #define E_COMP_WL
 #include "e_mod_main_wl.h"
 
@@ -53,3 +55,5 @@ e_keyrouter_conf_deinit(E_Keyrouter_Config_Data *kconfig)
    E_CONFIG_DD_FREE(kconfig->conf_hwkeys_edd);
    E_CONFIG_DD_FREE(kconfig->conf_edd);
 }
+
+#endif

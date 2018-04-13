@@ -1,3 +1,5 @@
+#ifndef _F_ENABLE_KEYROUTER_CORE
+
 #define E_COMP_WL
 #include "e_mod_main_wl.h"
 
@@ -804,3 +806,4 @@ e_keyrouter_util_process_name_get_from_cmd(char *cmd)
      }
    return NULL;
 }
+#endif
