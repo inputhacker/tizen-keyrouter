@@ -677,6 +677,7 @@ _e_keyrouter_send_key_event(int type, struct wl_resource *surface, struct wl_cli
    if (!wc_send)
      {
         KLWRN("wl_surface: %p or wl_client: %p returns null wayland client", surface, wc);
+        ev->data = NULL;
         return EINA_FALSE;
      }
 
