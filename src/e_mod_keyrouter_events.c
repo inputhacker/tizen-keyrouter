@@ -127,8 +127,11 @@ e_keyrouter_process_key_event(void *event, int type)
      {
         KLDBG("Modifier key delivered to Focus window : Key %s(%d)", ((ECORE_EVENT_KEY_DOWN == type) ? "Down" : "Up"), ev->keycode);
         keycode_data = E_NEW(int, 1);
-        *keycode_data = ev->keycode;
-        krt->ignore_list = eina_list_append(krt->ignore_list, keycode_data);
+        if (keycode_data)
+          {
+             *keycode_data = ev->keycode;
+             krt->ignore_list = eina_list_append(krt->ignore_list, keycode_data);
+          }
         goto finish;
      }
 
@@ -618,13 +621,13 @@ _e_keyrouter_check_top_visible_window(E_Client *ec_focus, int arr_idx)
 
    while (ec_top)
      {
-        if (!ec_top->visible && ec_top == ec_focus)
+        if (ec_top->visibility.obscured != E_VISIBILITY_UNOBSCURED)
           {
-             KLDBG("Top e_client (%p) is invisible(%d) but focus client", ec_top, ec_top->visible);
-             return EINA_FALSE;
-          }
-        if (!ec_top->visible)
-          {
+             if (ec_top == ec_focus)
+               {
+                  KLDBG("Top e_client (%p) is invisible(%d) but focus client", ec_top, ec_top->visible);
+                  return EINA_FALSE;
+               }
              ec_top = e_client_below_get(ec_top);
              continue;
           }
